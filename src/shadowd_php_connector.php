@@ -213,7 +213,7 @@ class connection {
 			);
 
 			/*
-             * Input format:
+			 * Input format:
 			 *   profile_id\n
 			 *   hmac(json)\n
 			 *   json\n
