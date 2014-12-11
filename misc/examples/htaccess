@@ -1,1 +1,1 @@
-php_value  memory_limit  "/usr/share/shadowd/shadowd_php_connector.php"
+php_value  auto_prepend_file  "/usr/share/shadowd/shadowd_php_connector.php"
