@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Shadow Daemon -- High-Interaction Web Honeypot
+ * Shadow Daemon -- Web Application Firewall
  *
  *   Copyright (C) 2014 Hendrik Buchwald <hb@zecure.org>
  *
@@ -21,7 +21,7 @@
 /* Namespace to avoid conflicts with the original site. */
 namespace swd;
 
-define('SHADOWD_CONNECTOR_VERSION', '0.1.0-php');
+define('SHADOWD_CONNECTOR_VERSION', '1.0.0-php');
 define('SHADOWD_CONNECTOR_CONFIG', '/etc/shadowd/connectors.ini');
 define('SHADOWD_CONNECTOR_CONFIG_SECTION', 'shadowd_php');
 define('STATUS_OK', '1');
