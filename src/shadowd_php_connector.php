@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Shadow Daemon -- Web Application Firewall
  *
  *   Copyright (C) 2014 Hendrik Buchwald <hb@zecure.org>
@@ -155,7 +155,7 @@ class input {
 		}
 	}
 
-	/*
+	/**
 	 * To avoid a small security problem we have to escape some key chars. The reason for this is that
 	 * otherwise test[foo][bar] would be the same as test[foo|bar] in the internal representation, so
 	 * test.php?test[foo|bar]=evil&test[foo][bar]=23 could be used to bypass the filter if the target
@@ -212,7 +212,7 @@ class connection {
 				'input' => $input->get()
 			);
 
-			/*
+			/**
 			 * Input format:
 			 *   profile_id\n
 			 *   hmac(json)\n
@@ -323,7 +323,7 @@ class cleaner {
 	}
 }
 
-/*
+/**
  * This class glues all other classes together and keeps everyone working. It also avoids pollution.
  * The complete process requires 6 steps. If something unexpected happens an error is logged and if
  * the protection is enabled the execution of the process is stopped.
@@ -342,7 +342,7 @@ class shadowd_connector {
 			/* Step 2: Get the input in a flat format, but without sensible data. */
 			$input = new input($config->get('ignore'), $caller);
 
-			/*
+			/**
 			 * Step 3: Establish a tcp connection with a shadowd server, send the encoded input + hmac
 			 * and save the encoded answer in a class attribute.
 			 */
