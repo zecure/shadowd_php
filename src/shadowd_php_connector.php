@@ -348,8 +348,8 @@ class shadowd_connector {
 			 */
 			$connection = new connection(
 				$config->get('profile', true),
-				$config->get('host', true),
-				$config->get('port', true),
+				($config->get('host') ? $config->get('host') : '127.0.0.1'),
+				($config->get('port') ? $config->get('port') : '9115'),
 				$config->get('key', true),
 				$config->get('ssl')
 			);
@@ -363,8 +363,8 @@ class shadowd_connector {
 			/* Step 4: Decode the answer and extract threats. */
 			$threats = $connection->get_threats();
 
-			/* Step 5: If protection mode is enabled eliminate the threats. */
-			if ($config->get('protect') && $threats) {
+			/* Step 5: If observe mode is disabled eliminate the threats. */
+			if (!$config->get('observe') && $threats) {
 				$cleaner = new cleaner();
 				$cleaner->defuse($threats);
 			}
