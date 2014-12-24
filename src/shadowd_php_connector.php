@@ -380,7 +380,7 @@ class shadowd_connector {
 			}
 
 			/* If protection mode is enabled we can't let this request pass. */
-			if ($config->get('protect')) {
+			if (!$config->get('observe')) {
 				header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
 				exit('<h1>500 Internal Server Error</h1>');
 			}
