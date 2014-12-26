@@ -30,6 +30,25 @@ define('STATUS_BAD_SIGNATURE', '3');
 define('STATUS_BAD_JSON', '4');
 define('STATUS_ATTACK', '5');
 
+/* JSON replacement for old PHP versions. */
+if (!function_exists('json_decode')) {
+	require_once(realpath(dirname(__FILE__)) . '/libs/json.php');
+
+	function json_decode($var) {
+		$JSON = new \Services_JSON;
+		return $JSON->decode($var);
+	}
+}
+
+if (!function_exists('json_encode')) {
+	require_once(realpath(dirname(__FILE__)) . '/libs/json.php');
+
+	function json_encode($var) {
+		$JSON = new \Services_JSON;
+		return $JSON->encode($var);
+	}
+}
+
 class config {
 	/* Parse a simple ini file. */
 	public function __construct($file) {
