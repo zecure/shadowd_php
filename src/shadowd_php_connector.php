@@ -51,24 +51,36 @@ if (!function_exists('json_encode')) {
 
 class config {
 	/* Parse a simple ini file. */
-	public function __construct($file) {
-		$this->data = parse_ini_file($file, true);
+	public function __construct() {
+		if (getenv('SHADOWD_CONNECTOR_CONFIG')) {
+			$this->file = getenv('SHADOWD_CONNECTOR_CONFIG');
+		} else {
+			$this->file = SHADOWD_CONNECTOR_CONFIG;
+		}
+
+		$this->data = parse_ini_file($this->file, true);
 
 		if (!$this->data) {
 			throw new \Exception('config error');
+		}
+
+		if (getenv('SHADOWD_CONNECTOR_CONFIG_SECTION')) {
+			$this->section = getenv('SHADOWD_CONNECTOR_CONFIG_SECTION');
+		} else {
+			$this->section = SHADOWD_CONNECTOR_CONFIG_SECTION;
 		}
 	}
 
 	/* Get the value or stop if a required value is missing. */
 	public function get($key, $required = false) {
-		if (!isset($this->data[SHADOWD_CONNECTOR_CONFIG_SECTION][$key])) {
+		if (!isset($this->data[$this->section][$key])) {
 			if ($required) {
 				throw new \Exception($key . ' in config missing');
 			} else {
 				return false;
 			}
 		} else {
-			return $this->data[SHADOWD_CONNECTOR_CONFIG_SECTION][$key];
+			return $this->data[$this->section][$key];
 		}
 	}
 }
@@ -119,12 +131,12 @@ class input {
 			return;
 		}
 
-		while (($path = fgets($handle)) !== false) {
+		while (($line = fgets($handle)) !== false) {
 			/* Remove newline. */
-			$path = trim($path);
+			$line = trim($line);
 
 			/* Check if there is a caller restriction for this ignore entry. */
-			if (preg_match('/(.+?)(\s+)(.+)/', $path, $matches)) {
+			if (preg_match('/(.+?)(\s+)(.+)/', $line, $matches)) {
 				if ($matches[3] !== $caller) {
 					continue;
 				}
@@ -133,8 +145,8 @@ class input {
 					unset($this->input[$matches[1]]);
 				}
 			} else {
-				if (isset($this->input[$path])) {
-					unset($this->input[$path]);
+				if (isset($this->input[$line])) {
+					unset($this->input[$line]);
 				}
 			}
 		}
@@ -352,7 +364,7 @@ class shadowd_connector {
 	public static function start() {
 		try {
 			/* Step 1: Get the configuration. */
-			$config = new config(SHADOWD_CONNECTOR_CONFIG);
+			$config = new config();
 
 			$client_ip = ($config->get('client_ip') ? @$_SERVER[$config->get('client_ip')] : $_SERVER['REMOTE_ADDR']);
 			$caller = ($config->get('prepend_name') ? $_SERVER['SERVER_NAME'] . ':' : '') .
