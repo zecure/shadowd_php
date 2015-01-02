@@ -1,12 +1,11 @@
-**Shadow Daemon** is a modular system that **detects and prevents known and unknown attacks against web applications**. It requires no source code changes, is very flexible and can be used for many different tasks, f.i. as *high-interaction honeypot* by security professionals to gather information about vulnerabilities, as *intrusion prevention system* by web administrators to protect internet sites or as *intrusion detection system* by network administrators to detect intruders.
+**Shadow Daemon** is a modular **web application firewall**. It prevents attacks against web applications by intercepting requests, detecting malicious user input and removing it.
+
+This component can be used to connect PHP applications with the [background server](https://github.com/zecure/shadowd).
 
 # Documentation
-This README is only a short guide to get you started quickly. For the complete user documentation please go to [https://shadowd.zecure.org/docs/current/](https://shadowd.zecure.org/docs/current/).
-
-# Demo
-A demonstration of the Shadow Daemon web interface can be found at [https://demo.shadowd.zecure.org/](https://demo.shadowd.zecure.org/).
+For the full documentation please refer to [shadowd.zecure.org](https://shadowd.zecure.org/).
 
 # Installation
-The PHP setting [auto_prepend_file](http://de1.php.net/manual/en/ini.core.php#ini.auto-prepend-file) should be used to load *shadowd_php_connector.php* automatically when a PHP script is executed. This can be done either globally by editing the *php.ini* or locally by editing the web server configuration and overwriting the value for single vhosts only.
+The PHP setting [auto_prepend_file](http://de1.php.net/manual/en/ini.core.php#ini.auto-prepend-file) should be used to load *shadowd_connector.php* automatically when a PHP script is executed. This can be done either globally by editing the *php.ini* or locally by editing the web server configuration and overwriting the value for single vhosts only.
 
-You also have to create a configuration file. You can copy *misc/examples/connectors.ini* to */etc/shadowd/connectors.ini* or change the path in the header of *shadowd_php_connector.php*.
+You also have to create a configuration file. You can copy *misc/examples/connectors.ini* to */etc/shadowd/connectors.ini* or change the path in the header of *shadowd_connector.php*.
