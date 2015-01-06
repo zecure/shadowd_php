@@ -103,10 +103,11 @@ class input {
 		/* Add header that contain user input. */
 		foreach ($_SERVER as $key => $value) {
 			if (strpos($key, 'HTTP_') === 0) {
-				$new_key = strtolower(substr($key, 5));
-				$input_collection['HEADER'][$new_key] = $value;
+				$input_collection['SERVER'][$key] = $value;
 			}
 		}
+
+		$input_collection['SERVER']['PHP_SELF'] = $_SERVER['PHP_SELF'];
 
 		/* Convert the complete input structure to a flat unique array. */
 		$this->flatten($input_collection);
