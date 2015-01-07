@@ -255,20 +255,20 @@ class input {
 		return str_replace(array('\\', '|'), array('\\\\', '\\|'), $key);
 	}
 
-	private function stripslashes(&$input) {
-		if (is_array($input)) {
-			return array_walk($input, array($this, 'stripslashes'));
-		}
-
-		$input = stripslashes($input);
-	}
-
 	private function unescape_key($key) {
 		return str_replace(array('\\\\', '\\|'), array('\\', '|'), $key);
 	}
 
 	public function split_path($path) {
 		return preg_split('/\\\\.(*SKIP)(*FAIL)|\|/s', $path);
+	}
+
+	private function stripslashes(&$input) {
+		if (is_array($input)) {
+			return array_walk($input, array($this, 'stripslashes'));
+		}
+
+		$input = stripslashes($input);
 	}
 }
 
