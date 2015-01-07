@@ -97,7 +97,7 @@ class input {
 
 		/* Stripslash get/post/cookie input if magic_quotes_gpc is activated to get the real values. */
 		if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
-			$this->stripslashes_deep($input_collection);
+			$this->stripslashes($input_collection);
 		}
 
 		/* Add header that contain user input. */
@@ -186,6 +186,65 @@ class input {
 		}
 	}
 
+	/* Iterate over all threats and try to remove them. */
+	public function defuse(&$threats) {
+		foreach ($threats as $threat) {
+			$this->remove($threat);
+		}
+	}
+
+	private function remove($path) {
+		$path_split = $this->split_path($path);
+
+		foreach ($path_split as &$key) {
+			$key = $this->unescape_key($key);
+		}
+
+		/* A valid path needs at least two pieces. */
+		if (count($path_split) < 2) {
+			return false;
+		}
+
+		$value = array();
+
+		/* The first element is the root path. It's not a real variable name, so we have to set it manually. */
+		$root_path = array_shift($path_split);
+
+		switch ($root_path) {
+			case 'GET':
+				$value = &$_GET;
+				break;
+			case 'POST':
+				$value = &$_POST;
+				break;
+			case 'COOKIE':
+				$value = &$_COOKIE;
+				break;
+			case 'SERVER':
+				$value = &$_SERVER;
+				break;
+			default:
+				return false;
+		}
+
+		/* Try to get the value of the path. */
+		foreach ($path_split as $name) {
+			/* Stop if the next layer does not exist. */
+			if (!isset($value[$name])) {
+				return false;
+			}
+
+			/* Change the value reference to the next element. */
+			$value = &$value[$name];
+		}
+
+		/* Finally the threat can be removed. */
+		$value = '';
+
+		/* Success. */
+		return true;
+	}
+
 	/**
 	 * To avoid a small security problem we have to escape some key chars. The reason for this is that
 	 * otherwise test[foo][bar] would be the same as test[foo|bar] in the internal representation, so
@@ -196,13 +255,20 @@ class input {
 		return str_replace(array('\\', '|'), array('\\\\', '\\|'), $key);
 	}
 
-	/* Recursive stripslashes. */
-	private function stripslashes_deep(&$input) {
+	private function stripslashes(&$input) {
 		if (is_array($input)) {
-			return array_walk($input, array($this, 'stripslashes_deep'));
+			return array_walk($input, array($this, 'stripslashes'));
 		}
 
 		$input = stripslashes($input);
+	}
+
+	private function unescape_key($key) {
+		return str_replace(array('\\\\', '\\|'), array('\\', '|'), $key);
+	}
+
+	public function split_path($path) {
+		return preg_split('/\\\\.(*SKIP)(*FAIL)|\|/s', $path);
 	}
 }
 
@@ -284,83 +350,13 @@ class connection {
 	}
 }
 
-class cleaner {
-	/* Iterate over all threats and try to remove them. */
-	public function defuse(&$threats) {
-		foreach ($threats as $threat) {
-			$this->remove($threat);
-		}
-	}
-
-	private function remove($path) {
-		$path_split = $this->split($path);
-
-		foreach ($path_split as &$key) {
-			$key = $this->unescape_key($key);
-		}
-
-		/* A valid path needs at least two pieces. */
-		if (count($path_split) < 2) {
-			return false;
-		}
-
-		$value = array();
-
-		/* The first element is the root path. It's not a real variable name, so we have to set it manually. */
-		$root_path = array_shift($path_split);
-
-		switch ($root_path) {
-			case 'GET':
-				$value = &$_GET;
-				break;
-			case 'POST':
-				$value = &$_POST;
-				break;
-			case 'COOKIE':
-				$value = &$_COOKIE;
-				break;
-			case 'SERVER':
-				$value = &$_SERVER;
-				break;
-			default:
-				return false;
-		}
-
-		/* Try to get the value of the path. */
-		foreach ($path_split as $name) {
-			/* Stop if the next layer does not exist. */
-			if (!isset($value[$name])) {
-				return false;
-			}
-
-			/* Change the value reference to the next element. */
-			$value = &$value[$name];
-		}
-
-		/* Finally the threat can be removed. */
-		$value = '';
-
-		/* Success. */
-		return true;
-	}
-
-	private function unescape_key($key) {
-		return str_replace(array('\\\\', '\\|'), array('\\', '|'), $key);
-	}
-
-	/* Dark magic to split the flat path and allow escaped separators. */
-	public function split($path) {
-		return preg_split('/\\\\.(*SKIP)(*FAIL)|\|/s', $path);
-	}
-}
-
 /**
  * This class glues all other classes together and keeps everyone working. It also avoids pollution.
  * The complete process requires 6 steps. If something unexpected happens an error is logged and if
  * the protection is enabled the execution of the process is stopped.
  * So if you want to write an own connector for another language this is what you have to do.
  */
-class shadowd_connector {
+class connector {
 	public static function start() {
 		try {
 			/* Step 1: Get the configuration. */
@@ -396,8 +392,7 @@ class shadowd_connector {
 
 			/* Step 5: If observe mode is disabled eliminate the threats. */
 			if (!$config->get('observe') && $threats) {
-				$cleaner = new cleaner();
-				$cleaner->defuse($threats);
+				$input->defuse($threats);
 			}
 
 			/* Step 6: If debug is enabled drop a log message (for fail2ban f.i.). */
@@ -419,6 +414,6 @@ class shadowd_connector {
 	}
 }
 
-shadowd_connector::start();
+connector::start();
 
 ?>
