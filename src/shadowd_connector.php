@@ -123,35 +123,40 @@ class input {
 		return $this->input;
 	}
 
-	/* Read in all input keys that should be ignored and remove them if they exist. */
+	/* Read in entries that should be ignored and remove them from the input. */
 	private function remove_ignored($file, $caller) {
-		$handle = fopen($file, "r");
+		$content = file_get_contents($file);
 
-		if (!$handle) {
-			return;
+		if ($content === false) {
+			throw new \Exception('could not open ignore file');
 		}
 
-		while (($line = fgets($handle)) !== false) {
-			/* Remove newline. */
-			$line = trim($line);
+		$json = json_decode($content, true);
 
-			/* Check if there is a caller restriction for this ignore entry. */
-			if (preg_match('/(.+?)(\s+)(.+)/', $line, $matches)) {
-				if ($matches[3] !== $caller) {
-					continue;
-				}
+		foreach ($json as $json_entry) {
 
-				if (isset($this->input[$matches[1]])) {
-					unset($this->input[$matches[1]]);
+			/* If there is only a caller and the caller matches delete all input. */
+			if (!isset($json_entry['path']) && isset($json_entry['caller'])) {
+				if ($caller === $json_entry['caller']) {
+					$this->input = array();
+
+					/* Input is empty, no need to continue with the other entries. */
+					break;
 				}
 			} else {
-				if (isset($this->input[$line])) {
-					unset($this->input[$line]);
+				/* Skip entry if caller is set, but does not match. */
+				if (isset($json_entry['caller'])) {
+					if ($caller !== $json_entry['caller']) {
+						continue;
+					}
+				}
+
+				/* Delete the input based on its path. */
+				if (isset($json_entry['path'])) {
+					unset($this->input[$json_entry['path']]);
 				}
 			}
 		}
-
-		fclose($handle);
 	}
 
 	/* This function converts nested arrays to a flat array. */
