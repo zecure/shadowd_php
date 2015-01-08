@@ -133,10 +133,10 @@ class input {
 
 		$json = json_decode($content, true);
 
-		foreach ($json as $json_entry) {
+		foreach ($json as $entry) {
 			/* If there is only a caller and the caller matches delete all input. */
-			if (!isset($json_entry['path']) && isset($json_entry['caller'])) {
-				if ($caller === $json_entry['caller']) {
+			if (!isset($entry['path']) && isset($entry['caller'])) {
+				if ($caller === $entry['caller']) {
 					$this->input = array();
 
 					/* Input is empty, no need to continue with the other entries. */
@@ -144,15 +144,15 @@ class input {
 				}
 			} else {
 				/* Skip entry if caller is set, but does not match. */
-				if (isset($json_entry['caller'])) {
-					if ($caller !== $json_entry['caller']) {
+				if (isset($entry['caller'])) {
+					if ($caller !== $entry['caller']) {
 						continue;
 					}
 				}
 
 				/* Delete the input based on its path. */
-				if (isset($json_entry['path'])) {
-					unset($this->input[$json_entry['path']]);
+				if (isset($entry['path'])) {
+					unset($this->input[$entry['path']]);
 				}
 			}
 		}
