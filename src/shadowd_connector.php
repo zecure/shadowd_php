@@ -134,7 +134,6 @@ class input {
 		$json = json_decode($content, true);
 
 		foreach ($json as $json_entry) {
-
 			/* If there is only a caller and the caller matches delete all input. */
 			if (!isset($json_entry['path']) && isset($json_entry['caller'])) {
 				if ($caller === $json_entry['caller']) {
