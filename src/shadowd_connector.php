@@ -102,6 +102,9 @@ class Input {
 
 	/* Aggregate and prepare the input. */
 	public function gather_input() {
+		/* Reset input. */
+		$this->input = array();
+
 		/* Create copies of all input sources. */
 		$input_collection = array(
 			'GET' => $_GET,
@@ -405,6 +408,6 @@ class Connector {
 	}
 }
 
-connector::start();
+Connector::start();
 
 ?>
