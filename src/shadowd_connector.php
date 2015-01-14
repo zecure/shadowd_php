@@ -159,46 +159,6 @@ class Input {
 		}
 	}
 
-	/* Read in entries that should be ignored and remove them from the input. */
-	public function remove_ignored($file) {
-		$content = file_get_contents($file);
-
-		if ($content === false) {
-			throw new \Exception('could not open ignore file');
-		}
-
-		$json = json_decode($content, true);
-
-		foreach ($json as $entry) {
-			/* If there is only a caller and the caller matches delete all input. */
-			if (!isset($entry['path']) && isset($entry['caller'])) {
-				if ($this->get_caller() === $entry['caller']) {
-					$this->input = array();
-
-					/* Input is empty, no need to continue with the other entries. */
-					break;
-				}
-			} else {
-				/* Skip entry if caller is set, but does not match. */
-				if (isset($entry['caller'])) {
-					if ($this->get_caller() !== $entry['caller']) {
-						continue;
-					}
-				}
-
-				/* Delete the input based on its path. */
-				if (isset($entry['path'])) {
-					unset($this->input[$entry['path']]);
-				}
-			}
-		}
-	}
-
-	/* Getter for the flattened input array. */
-	public function get_input() {
-		return $this->input;
-	}
-
 	/* Iterate over all threats and try to remove them. */
 	public function defuse_input($threats) {
 		foreach ($threats as $path) {
@@ -248,6 +208,46 @@ class Input {
 
 			/* Finally the threat can be removed. */
 			$value = '';
+		}
+	}
+
+	/* Getter for the flattened input array. */
+	public function get_input() {
+		return $this->input;
+	}
+
+	/* Read in entries that should be ignored and remove them from the input. */
+	public function remove_ignored($file) {
+		$content = file_get_contents($file);
+
+		if ($content === false) {
+			throw new \Exception('could not open ignore file');
+		}
+
+		$json = json_decode($content, true);
+
+		foreach ($json as $entry) {
+			/* If there is only a caller and the caller matches delete all input. */
+			if (!isset($entry['path']) && isset($entry['caller'])) {
+				if ($this->get_caller() === $entry['caller']) {
+					$this->input = array();
+
+					/* Input is empty, no need to continue with the other entries. */
+					break;
+				}
+			} else {
+				/* Skip entry if caller is set, but does not match. */
+				if (isset($entry['caller'])) {
+					if ($this->get_caller() !== $entry['caller']) {
+						continue;
+					}
+				}
+
+				/* Delete the input based on its path. */
+				if (isset($entry['path'])) {
+					unset($this->input[$entry['path']]);
+				}
+			}
 		}
 	}
 
