@@ -86,6 +86,7 @@ class Config {
 }
 
 class Input {
+	/* Construct a new object. */
 	public function __construct($config) {
 		$this->config = $config;
 	}
@@ -284,7 +285,26 @@ class Input {
 	}
 }
 
+class Output {
+	/* Construct a new object. */
+	public function __construct($config) {
+		$this->config = $config;
+	}
+
+	/* Show a fatal error and stop. */
+	public function error() {
+		header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+		exit('<h1>500 Internal Server Error</h1>');
+	}
+
+	/* Write message to error log. */
+	public function log($message) {
+		error_log($message);
+	}
+}
+
 class Connection {
+	/* Send user input to background server. */
 	public function send(input &$input, $host, $port, $profile, $key, $ssl) {
 		$context = stream_context_create();
 
@@ -332,6 +352,7 @@ class Connection {
 		return $this->parse_output($output);
 	}
 
+	/* Parse output from the background server. */
 	private function parse_output($output) {
 		$json = json_decode($output, true);
 
@@ -351,6 +372,7 @@ class Connection {
 		}
 	}
 
+	/* Sign the json encoded message as password verification. */
 	private function sign($key, $json) {
 		return hash_hmac('sha256', $json, $key);
 	}
@@ -364,6 +386,7 @@ class Connector {
 
 			/* Get the input in a flat format, but without sensible data. */
 			$input = new Input($config);
+			$output = new Output($config);
 
 			$input->gather_input();
 
@@ -391,18 +414,17 @@ class Connector {
 
 			/* If debug is enabled drop a log message (for fail2ban f.i.). */
 			if ($config->get('debug') && $threats) {
-				error_log('shadowd: removed threat from client: ' . $input->get_client_ip());
+				$output->log('shadowd: removed threat from client: ' . $input->get_client_ip());
 			}
 		} catch (\Exception $e) {
 			/* Let PHP handle the log writing if debug is enabled. */
 			if ($config->get('debug')) {
-				error_log('shadowd: ' . rtrim($e->getMessage()));
+				$output->log('shadowd: ' . rtrim($e->getMessage()));
 			}
 
 			/* If protection mode is enabled we can't let this request pass. */
 			if (!$config->get('observe')) {
-				header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-				exit('<h1>500 Internal Server Error</h1>');
+				$output->error();
 			}
 		}
 	}
