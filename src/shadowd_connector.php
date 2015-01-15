@@ -19,7 +19,7 @@
  */
 
 /* Namespace to avoid conflicts with the original site. */
-namespace swd;
+namespace shadowd;
 
 define('SHADOWD_CONNECTOR_VERSION', '1.0.0-php');
 define('SHADOWD_CONNECTOR_CONFIG', '/etc/shadowd/connectors.ini');
