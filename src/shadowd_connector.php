@@ -390,7 +390,7 @@ class Connector {
 
 			$input->gather_input();
 
-			$ignored = $config->get('ignored');
+			$ignored = $config->get('ignore');
 			if ($ignored) {
 				$input->remove_ignored($ignored);
 			}
