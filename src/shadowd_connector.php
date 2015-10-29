@@ -21,7 +21,7 @@
 /* Namespace to avoid conflicts with the original site. */
 namespace shadowd;
 
-define('SHADOWD_CONNECTOR_VERSION', '1.0.0-php');
+define('SHADOWD_CONNECTOR_VERSION', '1.1.0-php');
 define('SHADOWD_CONNECTOR_CONFIG', '/etc/shadowd/connectors.ini');
 define('SHADOWD_CONNECTOR_CONFIG_SECTION', 'shadowd_php');
 define('STATUS_OK', '1');
@@ -99,6 +99,11 @@ class Input {
 	/* Getter for the caller. */
 	public function get_caller() {
 		return $_SERVER[$this->config->get('caller', false, 'SCRIPT_FILENAME')];
+	}
+
+	/* Getter for the resource. */
+	public function get_resource() {
+		return $_SERVER[$this->config->get('resource', false, 'REQUEST_URI')];
 	}
 
 	/* Aggregate and prepare the input. */
@@ -329,6 +334,7 @@ class Connection {
 			'version' => SHADOWD_CONNECTOR_VERSION,
 			'client_ip' => $input->get_client_ip(),
 			'caller' => $input->get_caller(),
+			'resource' => $input->get_resource(),
 			'input' => $input->get_input()
 		);
 
