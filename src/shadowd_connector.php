@@ -183,6 +183,7 @@ class Input {
 			}
 
 			$value = array();
+			$value_req = null;
 
 			/* The first element is the root path. It's not a real variable name, so we have to set it manually. */
 			$root_path = array_shift($path_split);
@@ -190,9 +191,11 @@ class Input {
 			switch ($root_path) {
 				case 'GET':
 					$value = &$_GET;
+					$value_req = &$_REQUEST;
 					break;
 				case 'POST':
 					$value = &$_POST;
+					$value_req = &$_REQUEST;
 					break;
 				case 'COOKIE':
 					$value = &$_COOKIE;
@@ -213,10 +216,20 @@ class Input {
 
 				/* Change the value reference to the next element. */
 				$value = &$value[$name];
+
+				/* Do the same for request. */
+				if ($value_req && isset($value_req[$name])) {
+					$value_req = &$value_req[$name];
+				}
 			}
 
 			/* Finally the threat can be removed. */
 			$value = '';
+
+			/* Do the same for request. */
+			if ($value_req) {
+				$value_req = '';
+			}
 		}
 	}
 
