@@ -115,7 +115,8 @@ class Input {
 		$input_collection = array(
 			'GET' => $_GET,
 			'POST' => $_POST,
-			'COOKIE' => $_COOKIE
+			'COOKIE' => $_COOKIE,
+			'FILES' => $this->extract_filenames($_FILES)
 		);
 
 		/* Stripslash get/post/cookie input if magic_quotes_gpc is activated to get the real values. */
@@ -175,6 +176,17 @@ class Input {
 
 			$this->input[$new_path] = $input;
 		}
+	}
+
+	/* Extract the name of file upload arrays. */
+	private function extract_filenames(&$files) {
+		$output = array();
+
+		foreach ($files as $key => $value) {
+			$output[$key] = $value['name'];
+		}
+
+		return $output;
 	}
 
 	/* Iterate over all threats and try to remove them. */
