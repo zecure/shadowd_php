@@ -136,6 +136,15 @@ class Input {
 		$this->flatten($input_collection);
 	}
 
+	/* Calculate and store cryptographically secure checksums. */
+	public function gather_hashes() {
+		$algorithms = array('sha256', 'gost');
+
+		foreach ($algorithms as $algorithm) {
+			$this->hashes[$algorithm] = hash_file($algorithm, $_SERVER['SCRIPT_FILENAME']);
+		}
+	}
+
 	/* Convert nested arrays to a flat array. */
 	private function flatten(&$input, $key = false, $path = false) {
 		/* The next part generates an unique identifier for every input element. */
@@ -236,6 +245,11 @@ class Input {
 	/* Getter for the flattened input array. */
 	public function get_input() {
 		return $this->input;
+	}
+
+	/* Getter for the hashes array. */
+	public function get_hashes() {
+		return $this->hashes;
 	}
 
 	/* Read in entries that should be ignored and remove them from the input. */
@@ -348,7 +362,8 @@ class Connection {
 			'client_ip' => $input->get_client_ip(),
 			'caller' => $input->get_caller(),
 			'resource' => $input->get_resource(),
-			'input' => $input->get_input()
+			'input' => $input->get_input(),
+			'hashes' => $input->get_hashes()
 		);
 
 		/**
@@ -408,6 +423,7 @@ class Connector {
 			$output = new Output($config);
 
 			$input->gather_input();
+			$input->gather_hashes();
 
 			$ignored = $config->get('ignore');
 			if ($ignored) {
