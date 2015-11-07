@@ -203,7 +203,7 @@ class Input {
 				return false;
 			}
 
-			$value = array();
+			$value = null;
 			$value_req = null;
 
 			/* The first element is the root path. It's not a real variable name, so we have to set it manually. */
