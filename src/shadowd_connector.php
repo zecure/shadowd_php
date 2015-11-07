@@ -323,7 +323,7 @@ class Input {
 	}
 
 	/* Split path at dash, except if it is escaped. */
-	public function split_path($path) {
+	private function split_path($path) {
 		return preg_split('/\\\\.(*SKIP)(*FAIL)|\|/s', $path);
 	}
 
