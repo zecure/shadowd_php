@@ -21,7 +21,7 @@
 /* Namespace to avoid conflicts with the original site. */
 namespace shadowd;
 
-define('SHADOWD_CONNECTOR_VERSION', '1.1.0-php');
+define('SHADOWD_CONNECTOR_VERSION', '2.0.0-php');
 define('SHADOWD_CONNECTOR_CONFIG', '/etc/shadowd/connectors.ini');
 define('SHADOWD_CONNECTOR_CONFIG_SECTION', 'shadowd_php');
 define('STATUS_OK', '1');
