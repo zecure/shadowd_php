@@ -224,6 +224,9 @@ class Input {
 				case 'SERVER':
 					$value = &$_SERVER;
 					break;
+				case 'FILES':
+					$value = &$_FILES;
+					break;
 				default:
 					continue;
 			}
@@ -242,14 +245,19 @@ class Input {
 				if ($value_req && isset($value_req[$name])) {
 					$value_req = &$value_req[$name];
 				}
+
+				/* Ignore arrays for files, because of strange structure. */
+				if ($root_path === 'FILES') {
+					break;
+				}
 			}
 
 			/* Finally the threat can be removed. */
-			$value = '';
+			$value = null;
 
 			/* Do the same for request. */
 			if ($value_req) {
-				$value_req = '';
+				$value_req = null;
 			}
 		}
 	}
