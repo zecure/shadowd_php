@@ -253,7 +253,6 @@ class Input {
 
 				/* Ignore arrays for files, because of strange structure. */
 				if ($root_path === 'FILES') {
-echo $name . "<br>";
 					unset($_FILES[$name]);
 					$has_element = false;
 					break;
