@@ -231,12 +231,17 @@ class Input {
 					continue;
 			}
 
+			$has_element = false;
+
 			/* Try to get the value of the path. */
 			foreach ($path_split as $name) {
 				/* Stop if the next layer does not exist. */
 				if (!isset($value[$name])) {
 					break;
 				}
+
+				/* Need to know this because of file arrays. */
+				$has_element = true;
 
 				/* Change the value reference to the next element. */
 				$value = &$value[$name];
@@ -250,6 +255,10 @@ class Input {
 				if ($root_path === 'FILES') {
 					break;
 				}
+			}
+
+			if (!$has_element) {
+				continue;
 			}
 
 			/* Finally the threat can be removed. */
