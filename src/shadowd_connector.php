@@ -225,7 +225,7 @@ class Input {
 					$value = &$_SERVER;
 					break;
 				case 'FILES':
-					$value = &$_FILES;
+					$value = $_FILES;
 					break;
 				default:
 					continue;
@@ -253,6 +253,9 @@ class Input {
 
 				/* Ignore arrays for files, because of strange structure. */
 				if ($root_path === 'FILES') {
+echo $name . "<br>";
+					unset($_FILES[$name]);
+					$has_element = false;
 					break;
 				}
 			}
