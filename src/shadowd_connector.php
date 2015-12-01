@@ -369,6 +369,10 @@ class Output {
 class Connection {
 	/* Send user input to background server. */
 	public function send(input &$input, $host, $port, $profile, $key, $ssl) {
+		if (!preg_match('/^[0-9]*$/', $profile)) {
+			throw new \Exception('profile id not integer');
+		}
+
 		$context = stream_context_create();
 
 		if ($ssl) {
