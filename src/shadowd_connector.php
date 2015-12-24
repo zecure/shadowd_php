@@ -133,6 +133,12 @@ class Input {
 
 		$input_collection['SERVER']['PHP_SELF'] = $_SERVER['PHP_SELF'];
 
+		/* Add raw post data if not empty. */
+		$raw_data = file_get_contents('php://input');
+		if ($raw_data) {
+			$input_collection['DATA']['raw'] = $raw_data;
+		}
+
 		/* Convert the complete input structure to a flat unique array. */
 		$this->flatten($input_collection);
 	}
@@ -227,6 +233,8 @@ class Input {
 				case 'FILES':
 					$value = $_FILES;
 					break;
+				case 'DATA':
+					throw new \Exception('threat in raw user input');
 				default:
 					continue;
 			}
