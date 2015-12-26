@@ -75,7 +75,7 @@ class Input
 
         /* Add names of uploaded files. */
         foreach ($_FILES as $key => $value) {
-            $output[$key] = $value['name'];
+            $input['FILES'][$key] = $value['name'];
         }
 
         /* Add headers that contain user input. */
@@ -226,15 +226,16 @@ class Input
                     $value = &$_SERVER;
                     break;
                 case 'FILES':
-                    $value = $_FILES;
-                    break;
+                    /* Ignore arrays for files, because of strange structure. */
+                    unset($_FILES[$pathSplitted[0]]);
+
+                    /* Continue with next threat. */
+                    continue 2;
                 case 'DATA':
                     throw new \Exception('threat in raw user input');
                 default:
-                    continue;
+                    throw new \Exception('unknown root path');
             }
-
-            $hasElement = false;
 
             /* Try to get the value of the path. */
             foreach ($pathSplitted as $name) {
@@ -243,9 +244,6 @@ class Input
                     break;
                 }
 
-                /* Need to know this because of file arrays. */
-                $hasElement = true;
-
                 /* Change the value reference to the next element. */
                 $value = &$value[$name];
 
@@ -253,18 +251,6 @@ class Input
                 if ($valueRequest && isset($valueRequest[$name])) {
                     $valueRequest = &$valueRequest[$name];
                 }
-
-                /* Ignore arrays for files, because of strange structure. */
-                if ($rootPath === 'FILES') {
-                    unset($_FILES[$name]);
-                    $hasElement = false;
-
-                    break;
-                }
-            }
-
-            if (!$hasElement) {
-                continue;
             }
 
             /* Finally the threat can be removed. */
