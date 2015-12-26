@@ -61,10 +61,10 @@ class Input
     /* Aggregate and get the user input. */
     public function getInput()
     {
-        /* Create copies of input sources. */
+        /* Create copies of input sources. Only GET/POST/COOKIE here! */
         $input = array(
-            'GET' => $_GET,
-            'POST' => $_POST,
+            'GET'    => $_GET,
+            'POST'   => $_POST,
             'COOKIE' => $_COOKIE
         );
 
