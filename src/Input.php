@@ -68,7 +68,7 @@ class Input
             'COOKIE' => $_COOKIE
         );
 
-        /* Stripslash get/post/cookie input if magic_quotes_gpc is activated to get the real values. */
+        /* Strip slashes of GPC input if magic_quotes_gpc is activated to get the real values. */
         if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
             $this->stripslashes($input);
         }
