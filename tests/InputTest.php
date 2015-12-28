@@ -29,6 +29,7 @@ class InputTest extends \PHPUnit_Framework_TestCase {
         $_COOKIE['foo'] = 'bar';
         $_SERVER['HTTP_FOO'] = 'bar';
         $_SERVER['foo'] = 'bar';
+        $_FILES['foo']['name'] = 'bar';
 
         $i = new Input();
         $input = $i->getInput();
@@ -42,6 +43,8 @@ class InputTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue(array_key_exists('SERVER|HTTP_FOO', $input));
         $this->assertEquals($input['SERVER|HTTP_FOO'], 'bar');
         $this->assertFalse(array_key_exists('SERVER|foo', $input));
+        $this->assertTrue(array_key_exists('FILES|foo', $input));
+        $this->assertEquals($input['FILES|foo'], 'bar');
     }
 
     public function testFlatten() {
@@ -66,19 +69,22 @@ class InputTest extends \PHPUnit_Framework_TestCase {
         $_POST['foo'] = 'bar';
         $_COOKIE['foo'] = 'bar';
         $_SERVER['HTTP_FOO'] = 'bar';
+        $_FILES['foo']['name'] = 'bar';
 
         $i = new Input();
         $i->defuseInput(array(
             'GET|foo',
             'POST|foo',
             'COOKIE|foo',
-            'SERVER|HTTP_FOO'
+            'SERVER|HTTP_FOO',
+            'FILES|foo'
         ));
 
         $this->assertEmpty($_GET['foo']);
         $this->assertEmpty($_POST['foo']);
         $this->assertEmpty($_COOKIE['foo']);
         $this->assertEmpty($_SERVER['HTTP_FOO']);
+        $this->assertArrayNotHasKey('foo', $_FILES);
     }
 
     public function testEscapeKey() {
