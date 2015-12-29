@@ -123,7 +123,9 @@ class Connection
 
         switch ($json['status']) {
             case '1': // STATUS_OK
-                return false;
+                return array(
+                    'attack' => false
+                );
             case '2': // STATUS_BAD_REQUEST
                 throw new \Exception('bad request');
             case '3': // STATUS_BAD_SIGNATURE
@@ -131,7 +133,16 @@ class Connection
             case '4': // STATUS_BAD_JSON
                 throw new \Exception('bad json');
             case '5': // STATUS_ATTACK
-                return $json['threats'];
+                return array(
+                    'attack'   => true,
+                    'critical' => false,
+                    'threats'  => $json['threats']
+                );
+            case '6': // STATUS_CRITICAL_ATTACK
+                return array(
+                    'attack'   => true,
+                    'critical' => true
+                );
             default:
                 throw new \Exception('processing error');
         }

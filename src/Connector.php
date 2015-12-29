@@ -38,7 +38,7 @@ class Connector
 
             $output = new Output();
 
-            /* Establish a tcp connection with a shadowd server and send the user input. */
+            /* Establish a connection with shadowd and send the user input. */
             $connection = new Connection(array(
                 'host'    => $config->get('host'),
                 'port'    => $config->get('port'),
@@ -47,22 +47,38 @@ class Connector
                 'ssl'     => $config->get('ssl')
             ));
 
-            $threats = $connection->send($input);
+            $status = $connection->send($input);
 
             /* If observe mode is disabled eliminate the threats. */
-            if (!$config->get('observe') && $threats) {
-                if (!$input->defuseInput($threats)) {
+            if (!$config->get('observe') && ($status['attack'] === true)) {
+                if ($status['critical'] === true) {
                     if ($config->get('debug')) {
-                        $output->log('shadowd: stopped request from client: ' . $input->getClientIp());
+                        $output->log(
+                            'shadowd: stopped critical attack from client: '
+                            . $input->getClientIp()
+                        );
                     }
 
                     return $output->error();
                 }
-            }
 
-            /* If debug is enabled drop a log message (for fail2ban f.i.). */
-            if ($config->get('debug') && $threats) {
-                $output->log('shadowd: removed threat from client: ' . $input->getClientIp());
+                if (!$input->defuseInput($status['threats'])) {
+                    if ($config->get('debug')) {
+                        $output->log(
+                            'shadowd: stopped attack from client: '
+                            . $input->getClientIp()
+                        );
+                    }
+
+                    return $output->error();
+                }
+
+                if ($config->get('debug')) {
+                    $output->log(
+                        'shadowd: removed threat from client: '
+                        . $input->getClientIp()
+                    );
+                }
             }
         } catch (\Exception $e) {
             /* Let PHP handle the log writing if debug is enabled. */
