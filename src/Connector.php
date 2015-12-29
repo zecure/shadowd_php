@@ -51,7 +51,13 @@ class Connector
 
             /* If observe mode is disabled eliminate the threats. */
             if (!$config->get('observe') && $threats) {
-                $input->defuseInput($threats);
+                if (!$input->defuseInput($threats)) {
+                    if ($config->get('debug')) {
+                        $output->log('shadowd: stopped request from client: ' . $input->getClientIp());
+                    }
+
+                    return $output->error();
+                }
             }
 
             /* If debug is enabled drop a log message (for fail2ban f.i.). */
@@ -66,7 +72,7 @@ class Connector
 
             /* If protection mode is enabled we can't let this request pass. */
             if (!$config->get('observe')) {
-                $output->error();
+                return $output->error();
             }
         }
     }

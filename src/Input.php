@@ -195,72 +195,70 @@ class Input
         foreach ($threats as $path) {
             $pathSplitted = $this->splitPath($path);
 
-            foreach ($pathSplitted as &$key) {
-                $key = $this->unescapeKey($key);
-            }
-
             /* A valid path needs at least two pieces. */
             if (count($pathSplitted) < 2) {
                 return false;
             }
 
-            $value = null;
-            $valueRequest = null;
-
-            /* The first element is the root path. It's not a real variable name, so we have to set it manually. */
+            /* The first element is the root path. */
             $rootPath = array_shift($pathSplitted);
+
+            /**
+             * Arrays are ignored and completely removed if they contain a threat.
+             * This is new in version 2.0 and was a hard decision, but security-wise
+             * it is better than just emptying the variables, because it makes
+             * injections via array keys impossible.
+             */
+            $keyPath = $this->unescapeKey(array_shift($pathSplitted));
 
             switch ($rootPath) {
                 case 'GET':
-                    $value = &$_GET;
-                    $valueRequest = &$_REQUEST;
+                    if (isset($_GET[$keyPath])) {
+                        unset($_GET[$keyPath]);
+                    }
+
+                    if (isset($_REQUEST[$keyPath])) {
+                        unset($_REQUEST[$keyPath]);
+                    }
+
                     break;
                 case 'POST':
-                    $value = &$_POST;
-                    $valueRequest = &$_REQUEST;
+                    if (isset($_POST[$keyPath])) {
+                        unset($_POST[$keyPath]);
+                    }
+
+                    if (isset($_REQUEST[$keyPath])) {
+                        unset($_REQUEST[$keyPath]);
+                    }
+
                     break;
                 case 'COOKIE':
-                    $value = &$_COOKIE;
+                    if (isset($_COOKIE[$keyPath])) {
+                        unset($_COOKIE[$keyPath]);
+                    }
+
                     break;
                 case 'SERVER':
-                    $value = &$_SERVER;
+                    if (isset($_SERVER[$keyPath])) {
+                        unset($_SERVER[$keyPath]);
+                    }
+
                     break;
                 case 'FILES':
-                    /* Ignore arrays for files, because of strange structure. */
-                    unset($_FILES[$pathSplitted[0]]);
+                    if (isset($_FILES[$keyPath])) {
+                        unset($_FILES[$keyPath]);
+                    }
 
-                    /* Continue with next threat. */
-                    continue 2;
+                    break;
                 case 'DATA':
-                    throw new \Exception('threat in raw user input');
+                    return false;
                 default:
                     throw new \Exception('unknown root path');
             }
-
-            /* Try to get the value of the path. */
-            foreach ($pathSplitted as $name) {
-                /* Stop if the next layer does not exist. */
-                if (!isset($value[$name])) {
-                    break;
-                }
-
-                /* Change the value reference to the next element. */
-                $value = &$value[$name];
-
-                /* Do the same for request. */
-                if ($valueRequest && isset($valueRequest[$name])) {
-                    $valueRequest = &$valueRequest[$name];
-                }
-            }
-
-            /* Finally the threat can be removed. */
-            $value = null;
-
-            /* Do the same for request. */
-            if ($valueRequest) {
-                $valueRequest = null;
-            }
         }
+
+        /* Don't stop the complete request. */
+        return true;
     }
 
     /**

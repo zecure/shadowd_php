@@ -72,18 +72,19 @@ class InputTest extends \PHPUnit_Framework_TestCase {
         $_FILES['foo']['name'] = 'bar';
 
         $i = new Input();
-        $i->defuseInput(array(
+        $this->assertTrue($i->defuseInput(array(
             'GET|foo',
             'POST|foo',
             'COOKIE|foo',
             'SERVER|HTTP_FOO',
             'FILES|foo'
-        ));
+        )));
 
-        $this->assertEmpty($_GET['foo']);
-        $this->assertEmpty($_POST['foo']);
-        $this->assertEmpty($_COOKIE['foo']);
-        $this->assertEmpty($_SERVER['HTTP_FOO']);
+        $this->assertArrayNotHasKey('foo', $_GET);
+        $this->assertArrayNotHasKey('foo', $_POST);
+        $this->assertArrayNotHasKey('foo', $_REQUEST);
+        $this->assertArrayNotHasKey('foo', $_COOKIE);
+        $this->assertArrayNotHasKey('HTTP_FOO', $_SERVER);
         $this->assertArrayNotHasKey('foo', $_FILES);
     }
 
