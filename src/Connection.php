@@ -74,7 +74,7 @@ class Connection
             $result = stream_context_set_option($context, 'ssl', 'verify_peer', true);
         }
 
-        $resource = ($ssl ? 'ssl' : 'tcp') . '://' . $this->options['host'] . ':' . $this->options['port'];
+        $resource = ($this->options['ssl'] ? 'ssl' : 'tcp') . '://' . $this->options['host'] . ':' . $this->options['port'];
         $fp = @stream_socket_client($resource, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $context);
 
         if (!$fp) {
