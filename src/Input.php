@@ -153,6 +153,10 @@ class Input
 
         $json = json_decode($content, true);
 
+        if ($json === null) {
+            throw new \Exception('ignore file is corrupted');
+        }
+
         foreach ($json as $entry) {
             /* If there is only a caller and the caller matches delete all input. */
             if (!isset($entry['path']) && isset($entry['caller'])) {
