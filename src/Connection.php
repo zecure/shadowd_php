@@ -66,6 +66,7 @@ class Connection
     /* Send user input to background server. */
     public function send(Input $input)
     {
+        /* Prepare data. */
         $data = array(
             'version'   => '2.0.0-php',
             'client_ip' => $input->getClientIp(),
@@ -75,12 +76,6 @@ class Connection
             'hashes'    => $input->getHashes()
         );
 
-        /**
-         * Input format:
-         *   profile_id\n
-         *   hmac(json)\n
-         *   json\n
-         */
         $json = json_encode($data);
         $hmac_json = $this->sign($this->options['key'], $json);
 
@@ -107,7 +102,7 @@ class Connection
         /* Send data. */
         fwrite($fp, $this->options['profile'] . "\n" . $hmac_json . "\n" . $json . "\n");
 
-        /* Get and parse output. */
+        /* Get output. */
         $output = '';
 
         while (!feof($fp)) {
