@@ -37,6 +37,10 @@ class Input
             $options['ignoreFile'] = false;
         }
 
+        if (!isset($options['rawData'])) {
+            $options['rawData'] = true;
+        }
+
         $this->options = $options;
     }
 
@@ -88,10 +92,12 @@ class Input
         $input['SERVER']['PHP_SELF'] = $_SERVER['PHP_SELF'];
 
         /* Add raw post data if not empty. */
-        $rawData = file_get_contents('php://input');
+        if ($this->options['rawData']) {
+            $rawData = file_get_contents('php://input');
 
-        if ($rawData) {
-            $input['DATA']['raw'] = $rawData;
+            if ($rawData) {
+                $input['DATA']['raw'] = $rawData;
+            }
         }
 
         /* Convert the complete input structure to a flat unique array. */

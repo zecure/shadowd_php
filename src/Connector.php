@@ -33,7 +33,8 @@ class Connector
             $input = new Input(array(
                 'clientIpKey' => $config->get('client_ip'),
                 'callerKey'   => $config->get('caller'),
-                'ignoreFile'  => $config->get('ignore')
+                'ignoreFile'  => $config->get('ignore'),
+                'rawData'     => $config->get('raw_data')
             ));
 
             $output = new Output();
