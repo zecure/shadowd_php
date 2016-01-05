@@ -38,7 +38,7 @@ class Input
         }
 
         if (!isset($options['rawData'])) {
-            $options['rawData'] = true;
+            $options['rawData'] = false;
         }
 
         $this->options = $options;
