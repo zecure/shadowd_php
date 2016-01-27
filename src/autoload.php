@@ -36,6 +36,8 @@ spl_autoload_register(
 
         if (isset($classes[$cn])) {
             require __DIR__ . $classes[$cn];
+        } elseif (function_exists('__autoload')) {
+            __autoload($class);
         }
     }
 );
