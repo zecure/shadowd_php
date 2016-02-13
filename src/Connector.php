@@ -28,6 +28,8 @@ class Connector
     public static function start()
     {
         try {
+            $output = new Output();
+
             $config = new Config();
 
             $input = new Input(array(
@@ -36,8 +38,6 @@ class Connector
                 'ignoreFile'  => $config->get('ignore'),
                 'rawData'     => $config->get('raw_data')
             ));
-
-            $output = new Output();
 
             /* Establish a connection with shadowd and send the user input. */
             $connection = new Connection(array(
@@ -82,6 +82,12 @@ class Connector
                 }
             }
         } catch (\Exception $e) {
+            /* Stop if there is no config object. */
+            if (!$config) {
+                $output->log('shadowd: ' . rtrim($e->getMessage()));
+                return $output->error();
+            }
+
             /* Let PHP handle the log writing if debug is enabled. */
             if ($config->get('debug')) {
                 $output->log('shadowd: ' . rtrim($e->getMessage()));
