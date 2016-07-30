@@ -68,7 +68,7 @@ class Connection
     {
         /* Prepare data. */
         $data = array(
-            'version'   => '2.0.0-php',
+            'version'   => '2.0.2-php',
             'client_ip' => $input->getClientIp(),
             'caller'    => $input->getCaller(),
             'resource'  => $input->getResource(),

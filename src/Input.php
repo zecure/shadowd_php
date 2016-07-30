@@ -247,6 +247,10 @@ class Input
                         unset($_COOKIE[$keyPath]);
                     }
 
+                    if (isset($_REQUEST[$keyPath])) {
+                        unset($_REQUEST[$keyPath]);
+                    }
+
                     break;
                 case 'SERVER':
                     if (isset($_SERVER[$keyPath])) {
