@@ -83,7 +83,8 @@ class Connection
             $result = stream_context_set_option($context, 'ssl', 'verify_peer', true);
         }
 
-        $resource = ($this->options['ssl'] ? 'ssl' : 'tcp') . '://' . $this->options['host'] . ':' . $this->options['port'];
+        $resource = ($this->options['ssl'] ?
+                'ssl' : 'tcp') . '://' . $this->options['host'] . ':' . $this->options['port'];
         $fp = @stream_socket_client($resource, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $context);
 
         if (!$fp) {
@@ -106,7 +107,7 @@ class Connection
 
         fclose($fp);
 
-        return $this->parse_output($output);
+        return $this->parseOutput($output);
     }
 
     /**
@@ -116,7 +117,7 @@ class Connection
      * @return array
      * @throws \Exception if something is wrong with the output
      */
-    private function parse_output($output)
+    private function parseOutput($output)
     {
         $json = json_decode($output, true);
 
