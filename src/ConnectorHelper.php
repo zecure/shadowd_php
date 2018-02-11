@@ -83,6 +83,12 @@ class ConnectorHelper
                 }
             }
         } catch (\Exception $e) {
+            /* Should not happen. */
+            if (!$output) {
+                echo 'No output available';
+                exit(1);
+            }
+
             /* Stop if there is no config object. */
             if (!$config) {
                 $output->log('shadowd: ' . rtrim($e->getMessage()));
