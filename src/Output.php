@@ -22,14 +22,23 @@ namespace shadowd;
 
 class Output
 {
-    /* Show a fatal error and stop. */
+    /**
+     * Show a fatal error and stop.
+     *
+     * @return void
+     */
     public function error()
     {
         header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
         exit('<h1>500 Internal Server Error</h1>');
     }
 
-    /* Write message to error log. */
+    /**
+     * Write message to error log.
+     *
+     * @param string $message
+     * @return void
+     */
     public function log($message)
     {
         error_log($message);

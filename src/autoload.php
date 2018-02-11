@@ -43,7 +43,7 @@ spl_autoload_register(
     }
 );
 
-/* JSON replacement for old PHP versions. */
+// JSON replacement for old PHP versions.
 if (!function_exists('json_decode')) {
     function json_decode($var) {
         $JSON = new \Services_JSON;
@@ -56,4 +56,9 @@ if (!function_exists('json_encode')) {
         $JSON = new \Services_JSON;
         return $JSON->encode($var);
     }
+}
+
+// Fallback for tests.
+if (!defined('SHADOWD_CONNECTOR_VERSION')) {
+    define('SHADOWD_CONNECTOR_VERSION', '0.0.0');
 }
