@@ -22,7 +22,7 @@ namespace shadowd;
 
 define('__MISC__', realpath(dirname(__FILE__)) . '/../misc/tests/');
 
-class InputTest extends \PHPUnit_Framework_TestCase {
+class InputTest extends \PHPUnit\Framework\TestCase {
     public function testGetInput() {
         $_GET['foo'] = 'bar';
         $_POST['foo'] = 'bar';

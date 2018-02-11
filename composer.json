@@ -1,0 +1,9 @@
+{
+  "name": "zecure/shadowd_php",
+  "license": "GPLv2",
+  "prefer-stable": true,
+  "require-dev": {
+    "phpstan/phpstan": "^0.9",
+    "phpunit/phpunit": "^6.5"
+  }
+}
