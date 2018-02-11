@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2016 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2018 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -22,6 +22,15 @@ namespace shadowd;
 
 class Config
 {
+    /** @var string */
+    private $file;
+
+    /** @var string */
+    private $section;
+
+    /** @var array */
+    private $data;
+
     /* Construct a new object and parse ini file. */
     public function __construct()
     {

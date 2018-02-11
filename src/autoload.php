@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2016 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2018 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -24,11 +24,12 @@ spl_autoload_register(
 
         if ($classes === null) {
             $classes = array(
-                'shadowd\\connector'  => '/Connector.php',
-                'shadowd\\connection' => '/Connection.php',
-                'shadowd\\config'     => '/Config.php',
-                'shadowd\\input'      => '/Input.php',
-                'shadowd\\output'     => '/Output.php'
+                'shadowd\\connectorhelper' => '/ConnectorHelper.php',
+                'shadowd\\connection'      => '/Connection.php',
+                'shadowd\\config'          => '/Config.php',
+                'shadowd\\input'           => '/Input.php',
+                'shadowd\\output'          => '/Output.php',
+                'services_json'            => '/libs/json.php'
             );
         }
 
@@ -41,3 +42,18 @@ spl_autoload_register(
         }
     }
 );
+
+/* JSON replacement for old PHP versions. */
+if (!function_exists('json_decode')) {
+    function json_decode($var) {
+        $JSON = new \Services_JSON;
+        return $JSON->decode($var);
+    }
+}
+
+if (!function_exists('json_encode')) {
+    function json_encode($var) {
+        $JSON = new \Services_JSON;
+        return $JSON->encode($var);
+    }
+}

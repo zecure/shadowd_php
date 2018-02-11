@@ -6,5 +6,11 @@ php:
   - 5.6
   - 7.0
 
+before_script:
+  - composer self-update
+  - composer install
+
 script:
+  - php vendor/bin/phpstan analyse -c .phpstan.neon -l 7 src
   - phpunit tests
+

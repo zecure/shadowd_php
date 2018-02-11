@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2016 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2018 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -20,27 +20,11 @@
 
 namespace shadowd;
 
-/* JSON replacement for old PHP versions. */
-if (!function_exists('json_decode')) {
-    require_once(realpath(dirname(__FILE__)) . '/libs/json.php');
-
-    function json_decode($var) {
-        $JSON = new \Services_JSON;
-        return $JSON->decode($var);
-    }
-}
-
-if (!function_exists('json_encode')) {
-    require_once(realpath(dirname(__FILE__)) . '/libs/json.php');
-
-    function json_encode($var) {
-        $JSON = new \Services_JSON;
-        return $JSON->encode($var);
-    }
-}
-
 class Connection
 {
+    /** @var array */
+    private $options;
+
     /* Construct a new object. */
     public function __construct($options = array())
     {
