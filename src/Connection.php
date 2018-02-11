@@ -25,7 +25,12 @@ class Connection
     /** @var array */
     private $options;
 
-    /* Construct a new object. */
+    /**
+     * Construct a new object.
+     *
+     * @param array $options
+     * @throws \Exception if options are wrong
+     */
     public function __construct($options = array())
     {
         if (!preg_match('/^[0-9]*$/', $options['profile'])) {
@@ -47,12 +52,18 @@ class Connection
         $this->options = $options;
     }
 
-    /* Send user input to background server. */
+    /**
+     * Send user input to background server.
+     *
+     * @param Input $input
+     * @return array
+     * @throws \Exception if connection can not be established or data invalid
+     */
     public function send(Input $input)
     {
-        /* Prepare data. */
+        // Prepare data.
         $data = array(
-            'version'   => '2.0.2-php',
+            'version'   => SHADOWD_CONNECTOR_VERSION,
             'client_ip' => $input->getClientIp(),
             'caller'    => $input->getCaller(),
             'resource'  => $input->getResource(),
@@ -63,7 +74,7 @@ class Connection
         $json = json_encode($data);
         $hmac_json = $this->sign($this->options['key'], $json);
 
-        /* Establish connection. */
+        // Establish connection.
         $context = stream_context_create();
 
         if ($this->options['ssl']) {
@@ -83,10 +94,10 @@ class Connection
             }
         }
 
-        /* Send data. */
+        // Send data.
         fwrite($fp, $this->options['profile'] . "\n" . $hmac_json . "\n" . $json . "\n");
 
-        /* Get output. */
+        // Get output.
         $output = '';
 
         while (!feof($fp)) {
@@ -98,7 +109,13 @@ class Connection
         return $this->parse_output($output);
     }
 
-    /* Parse output from the background server. */
+    /**
+     * Parse output from the background server.
+     *
+     * @param string $output
+     * @return array
+     * @throws \Exception if something is wrong with the output
+     */
     private function parse_output($output)
     {
         $json = json_decode($output, true);

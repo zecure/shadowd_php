@@ -25,7 +25,11 @@ class Input
     /** @var array */
     private $options;
 
-    /* Construct a new object. */
+    /**
+     * Construct a new object.
+     *
+     * @param array $options
+     */
     public function __construct($options = array())
     {
         if (!isset($options['clientIpKey']) || !$options['clientIpKey']) {
@@ -47,45 +51,61 @@ class Input
         $this->options = $options;
     }
 
-    /* Getter for the client ip. */
+    /**
+     * Getter for the client ip.
+     *
+     * @return string|null
+     */
     public function getClientIp()
     {
         return $_SERVER[$this->options['clientIpKey']];
     }
 
-    /* Getter for the caller. */
+    /**
+     * Getter for the caller.
+     *
+     * @return string|null
+     */
     public function getCaller()
     {
         return $_SERVER[$this->options['callerKey']];
     }
 
-    /* Getter for the resource. */
+    /**
+     * Getter for the resource.
+     *
+     * @return string
+     */
     public function getResource()
     {
         return $_SERVER['REQUEST_URI'];
     }
 
-    /* Aggregate and get the user input. */
+    /**
+     * Aggregate and get the user input.
+     *
+     * @return array
+     */
     public function getInput()
     {
-        /* Create copies of input sources. Only GET/POST/COOKIE here! */
+        // Create copies of input sources. Only GET/POST/COOKIE here!
         $input = array(
             'GET'    => $_GET,
             'POST'   => $_POST,
             'COOKIE' => $_COOKIE
         );
 
-        /* Strip slashes of GPC input if magic_quotes_gpc is activated to get the real values. */
+        // Strip slashes of GPC input if magic_quotes_gpc is activated to get the real values.
         if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
             $this->stripslashes($input);
         }
 
-        /* Add names of uploaded files. */
+        // Add names of uploaded files.
         foreach ($_FILES as $key => $value) {
             $input['FILES'][$key] = $value['name'];
         }
 
-        /* Add headers that contain user input. */
+        // Add headers that contain user input.
         foreach ($_SERVER as $key => $value) {
             if (strpos($key, 'HTTP_') === 0) {
                 $input['SERVER'][$key] = $value;
@@ -94,7 +114,7 @@ class Input
 
         $input['SERVER']['PHP_SELF'] = $_SERVER['PHP_SELF'];
 
-        /* Add raw post data if not empty. */
+        // Add raw post data if not empty.
         if ($this->options['rawData']) {
             $rawData = file_get_contents('php://input');
 
@@ -103,10 +123,10 @@ class Input
             }
         }
 
-        /* Convert the complete input structure to a flat unique array. */
+        // Convert the complete input structure to a flat unique array.
         $flattenedInput = $this->flatten($input);
 
-        /* Remove user input that should be ignored. */
+        // Remove user input that should be ignored.
         if ($this->options['ignoreFile']) {
             $flattenedInput = $this->removeIgnored($flattenedInput);
         }
@@ -114,18 +134,25 @@ class Input
         return $flattenedInput;
     }
 
-    /* Convert nested arrays to a flat array. */
+    /**
+     * Convert nested arrays to a flat array.
+     *
+     * @param array|string $input
+     * @param string|bool $key
+     * @param string|bool $path
+     * @return array
+     */
     public function flatten($input, $key = false, $path = false)
     {
         $output = array();
 
-        /* The next part generates an unique identifier for every input element. */
+        // The next part generates an unique identifier for every input element.
         $newPath = false;
 
-        if ($key !== false) {
+        if (is_string($key)) {
             $key = $this->escapeKey($key);
 
-            /* If there is already a path just append the key, otherwise the key is the complete new path. */
+            // If there is already a path just append the key, otherwise the key is the complete new path.
             if ($path !== false) {
                 $newPath = $path . '|' . $key;
             } else {
@@ -133,9 +160,9 @@ class Input
             }
         }
 
-        /* Now we have to process the input. It can either be an array or a string, but we check both to be sure. */
+        // Now we have to process the input. It can either be an array or a string, but we check both to be sure.
         if (is_array($input)) {
-            /* The current input is an array, so we have to call the convert function again. */
+            // The current input is an array, so we have to call the convert function again.
             foreach ($input as $inputKey => $inputValue) {
                 $output = array_replace($output, $this->flatten($inputValue, $inputKey, $newPath));
             }
@@ -151,7 +178,13 @@ class Input
         return $output;
     }
 
-    /* Read in entries that should be ignored and remove them from the input. */
+    /**
+     * Read in entries that should be ignored and remove them from the input.
+     *
+     * @param array $input
+     * @return array
+     * @throws \Exception if file corrupted or inaccessible
+     */
     public function removeIgnored($input)
     {
         $content = file_get_contents($this->options['ignoreFile']);
@@ -167,20 +200,20 @@ class Input
         }
 
         foreach ($json as $entry) {
-            /* If there is only a caller and the caller matches delete all input. */
+            // If there is only a caller and the caller matches delete all input.
             if (!isset($entry['path']) && isset($entry['caller'])) {
                 if ($this->getCaller() === $entry['caller']) {
                     return array();
                 }
             } else {
-                /* Skip entry if caller is set, but does not match. */
+                // Skip entry if caller is set, but does not match.
                 if (isset($entry['caller'])) {
                     if ($this->getCaller() !== $entry['caller']) {
                         continue;
                     }
                 }
 
-                /* Delete the input based on its path. */
+                // Delete the input based on its path.
                 if (isset($entry['path'])) {
                     unset($input[$entry['path']]);
                 }
@@ -190,7 +223,11 @@ class Input
         return $input;
     }
 
-    /* Calculate and return cryptographically secure checksums. */
+    /**
+     * Calculate and return cryptographically secure checksums.
+     *
+     * @return array
+     */
     public function getHashes()
     {
         $hashes = array();
@@ -202,26 +239,32 @@ class Input
         return $hashes;
     }
 
-    /* Iterate over all threats and try to remove them. */
+    /**
+     * Iterate over all threats and try to remove them.
+     *
+     * Returns false if the complete request has to be blocked.
+     *
+     * @param string[] $threats
+     * @return bool
+     * @throws \Exception if threat is invalid
+     */
     public function defuseInput($threats)
     {
         foreach ($threats as $path) {
             $pathSplitted = $this->splitPath($path);
 
-            /* A valid path needs at least two pieces. */
+            // A valid path needs at least two pieces.
             if (count($pathSplitted) < 2) {
                 return false;
             }
 
-            /* The first element is the root path. */
+            // The first element is the root path.
             $rootPath = array_shift($pathSplitted);
 
-            /**
-             * Arrays are ignored and completely removed if they contain a threat.
-             * This is new in version 2.0 and was a hard decision, but security-wise
-             * it is better than just emptying the variables, because it makes
-             * injections via array keys impossible.
-             */
+            // Arrays are ignored and completely removed if they contain a threat.
+            // This is new in version 2.0 and was a hard decision, but security-wise
+            // it is better than just emptying the variables, because it makes
+            // injections via array keys impossible.
             $keyPath = $this->unescapeKey(array_shift($pathSplitted));
 
             switch ($rootPath) {
@@ -274,38 +317,61 @@ class Input
             }
         }
 
-        /* Don't stop the complete request. */
+        // Don't stop the complete request.
         return true;
     }
 
     /**
+     * Escape special characters in keys.
+     *
      * To avoid a small security problem we have to escape some key chars. The reason for this is that
      * otherwise test[foo][bar] would be the same as test[foo|bar] in the internal representation, so
      * test.php?test[foo|bar]=evil&test[foo][bar]=23 could be used to bypass the filter if the target
      * script uses pipes in a key name.
+     *
+     * @param string $key
+     * @return string
      */
     public function escapeKey($key)
     {
         return str_replace(array('\\', '|'), array('\\\\', '\\|'), $key);
     }
 
-    /* Escaped keys have to be unescaped before they can be defused. */
+    /**
+     * Escaped keys have to be unescaped before they can be defused.
+     *
+     * @param string $key
+     * @return string
+     */
     public function unescapeKey($key)
     {
         return str_replace(array('\\\\', '\\|'), array('\\', '|'), $key);
     }
 
-    /* Split path at dash, except if it is escaped. */
+    /**
+     * Split path at dash, except if it is escaped.
+     *
+     * @param string $path
+     * @return string[]
+     */
     public function splitPath($path)
     {
         return preg_split('/\\\\.(*SKIP)(*FAIL)|\|/s', $path);
     }
 
-    /* Strip slashes recursively if magic_quotes_gpc is enabled. */
+    /**
+     * Strip slashes recursively if magic_quotes_gpc is enabled.
+     *
+     * Warning, this function uses value by reference!
+     *
+     * @param array|string $input
+     * @return void
+     */
     private function stripslashes(&$input)
     {
         if (is_array($input)) {
-            return array_walk($input, array($this, 'stripslashes'));
+            array_walk($input, array($this, 'stripslashes'));
+            return;
         }
 
         $input = stripslashes($input);

@@ -22,7 +22,11 @@ namespace shadowd;
 
 class ConnectorHelper
 {
-    /* Tie all other classes together. */
+    /**
+     * Tie all other classes together.
+     *
+     * @return void
+     */
     public static function start()
     {
         try {
@@ -40,7 +44,7 @@ class ConnectorHelper
                 'rawData'     => $config->get('raw_data')
             ));
 
-            /* Establish a connection with shadowd and send the user input. */
+            // Establish a connection with shadowd and send the user input.
             $connection = new Connection(array(
                 'host'    => $config->get('host'),
                 'port'    => $config->get('port'),
@@ -51,7 +55,7 @@ class ConnectorHelper
 
             $status = $connection->send($input);
 
-            /* If observe mode is disabled eliminate the threats. */
+            // If observe mode is disabled eliminate the threats.
             if (!$config->get('observe') && ($status['attack'] === true)) {
                 if ($status['critical'] === true) {
                     if ($config->get('debug')) {
@@ -61,7 +65,7 @@ class ConnectorHelper
                         );
                     }
 
-                    return $output->error();
+                    $output->error();
                 }
 
                 if (!$input->defuseInput($status['threats'])) {
@@ -72,7 +76,7 @@ class ConnectorHelper
                         );
                     }
 
-                    return $output->error();
+                    $output->error();
                 }
 
                 if ($config->get('debug')) {
@@ -83,26 +87,26 @@ class ConnectorHelper
                 }
             }
         } catch (\Exception $e) {
-            /* Should not happen. */
+            // Should not happen.
             if (!$output) {
                 echo 'No output available';
                 exit(1);
             }
 
-            /* Stop if there is no config object. */
+            // Stop if there is no config object.
             if (!$config) {
                 $output->log('shadowd: ' . rtrim($e->getMessage()));
-                return $output->error();
+                $output->error();
             }
 
-            /* Let PHP handle the log writing if debug is enabled. */
+            // Let PHP handle the log writing if debug is enabled.
             if ($config->get('debug')) {
                 $output->log('shadowd: ' . rtrim($e->getMessage()));
             }
 
-            /* If protection mode is enabled we can't let this request pass. */
+            // If protection mode is enabled we can't let this request pass.
             if (!$config->get('observe')) {
-                return $output->error();
+                $output->error();
             }
         }
     }

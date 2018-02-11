@@ -18,6 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+define('SHADOWD_CONNECTOR_VERSION', '2.0.2-php');
+
 require_once(realpath(dirname(__FILE__)) . '/autoload.php');
 
 ConnectorHelper::start();

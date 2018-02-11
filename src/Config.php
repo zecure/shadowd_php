@@ -31,7 +31,9 @@ class Config
     /** @var array */
     private $data;
 
-    /* Construct a new object and parse ini file. */
+    /**
+     * Construct a new object and parse ini file.
+     */
     public function __construct()
     {
         if (getenv('SHADOWD_CONNECTOR_CONFIG')) {
@@ -53,7 +55,14 @@ class Config
         }
     }
 
-    /* Get the value or stop if a required value is missing. */
+    /**
+     * Get the value or stop if a required value is missing.
+     *
+     * @param string $key
+     * @param bool $required
+     * @return string|bool
+     * @throws \Exception if value required but missing
+     */
     public function get($key, $required = false)
     {
         if (!isset($this->data[$this->section][$key])) {
