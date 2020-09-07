@@ -58,7 +58,17 @@ class Input
      */
     public function getClientIp()
     {
-        return $_SERVER[$this->options['clientIpKey']];
+        /* Allow for comma-separated client IP keys. */
+        $keys = explode(',', $this->options['clientIpKey']);
+        foreach ($keys as $key) {
+            $cleanKey = trim($key);
+            /* Skip empty server keys. */
+            if (!empty($_SERVER[$cleanKey])) {
+                return $_SERVER[$cleanKey];
+            }
+        }
+        /* Use the default or return empty string. */
+        return empty($_SERVER['REMOTE_ADDR']) ? '' : $_SERVER['REMOTE_ADDR'];
     }
 
     /**
