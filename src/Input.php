@@ -50,9 +50,10 @@ class Input
         /* Allow for comma-separated client IP keys. */
         $keys = explode(',', $this->options['clientIpKey']);
         foreach ($keys as $key) {
+            $cleanKey = trim($key);
             /* Skip empty server keys. */
-            if (!empty($_SERVER[$key])) {
-                return $_SERVER[$key];
+            if (!empty($_SERVER[$cleanKey])) {
+                return $_SERVER[$cleanKey];
             }
         }
         /* Use the default or return empty string. */
