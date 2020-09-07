@@ -45,7 +45,7 @@ spl_autoload_register(
 
 // JSON replacement for old PHP versions.
 if (!function_exists('json_decode')) {
-    function json_decode($var) {
+    function json_decode($var, $assoc = true) {
         $JSON = new \Services_JSON;
         return $JSON->decode($var);
     }
