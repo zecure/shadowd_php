@@ -64,7 +64,10 @@ class Input
             $cleanKey = trim($key);
             /* Skip empty server keys. */
             if (!empty($_SERVER[$cleanKey])) {
-                return $_SERVER[$cleanKey];
+                /* X_FORWARD_FOR allows for comma-separated address listing
+                 * and the first IP is assumed the actual client ip */
+                $addrs = explode(',',$_SERVER[$cleanKey]);
+                return array_shift($addrs);
             }
         }
         /* Use the default or return empty string. */
