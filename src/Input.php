@@ -61,12 +61,12 @@ class Input
         /* Allow for comma-separated client IP keys. */
         $keys = explode(',', $this->options['clientIpKey']);
         foreach ($keys as $key) {
-            $cleanKey = trim($key);
+            $key = trim($key);
             /* Skip empty server keys. */
-            if (!empty($_SERVER[$cleanKey])) {
+            if (!empty($_SERVER[$key])) {
                 /* X_FORWARD_FOR allows for comma-separated address listing
-                 * and the first IP is assumed the actual client ip */
-                $addrs = explode(',',$_SERVER[$cleanKey]);
+                 * and the first IP is assumed the actual client IP. */
+                $addrs = explode(',', $_SERVER[$key]);
                 return array_shift($addrs);
             }
         }
