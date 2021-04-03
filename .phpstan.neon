@@ -1,5 +1,7 @@
 parameters:
-	autoload_files:
+	reportUnmatchedIgnoredErrors: false
+
+	bootstrapFiles:
 		- %rootDir%/../../../src/autoload.php
 
 	excludes_analyse:
