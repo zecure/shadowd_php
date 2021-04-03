@@ -29,7 +29,7 @@ class Config
     /** @var string */
     private $section;
 
-    /** @var array */
+    /** @var array<string, array<string, string>> */
     private $data;
 
     /**

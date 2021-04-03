@@ -4,5 +4,5 @@ parameters:
 
 	excludes_analyse:
 		- %rootDir%/../../../src/autoload.php
-		- %rootDir%/../../../src/Connector.php
+		- %rootDir%/../../../src/ConnectorHelper.php
 		- %rootDir%/../../../src/libs/json.php

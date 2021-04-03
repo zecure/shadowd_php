@@ -34,22 +34,22 @@ class ConnectorHelper
             [$configFile, $configSection] = self::getConfigOptions();
             $config = new Config($configFile, $configSection);
 
-            $input = new Input(array(
+            $input = new Input([
                 'clientIpKey' => $config->get('client_ip'),
                 'callerKey'   => $config->get('caller'),
                 'ignoreFile'  => $config->get('ignore'),
                 'rawData'     => $config->get('raw_data')
-            ));
+            ]);
 
             // Establish a connection with shadowd and send the user input.
-            $connection = new Connection(array(
+            $connection = new Connection([
                 'host'    => $config->get('host'),
                 'port'    => $config->get('port'),
                 'profile' => $config->get('profile', true),
                 'key'     => $config->get('key', true),
                 'ssl'     => $config->get('ssl'),
                 'timeout' => $config->get('timeout')
-            ));
+            ]);
 
             $status = $connection->send($input);
 
@@ -85,14 +85,8 @@ class ConnectorHelper
                 }
             }
         } catch (\Exception $e) {
-            // Should not happen.
-            if (!$output) {
-                echo 'No output available';
-                exit(1);
-            }
-
             // Stop if there is no config object.
-            if (!$config) {
+            if (!isset($config) || !$config) {
                 $output->log('shadowd: ' . get_class($e) . ': ' . $e->getTraceAsString());
                 $output->error();
             }

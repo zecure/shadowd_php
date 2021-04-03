@@ -26,7 +26,7 @@ spl_autoload_register(
         static $classes = null;
 
         if ($classes === null) {
-            $classes = array(
+            $classes = [
                 'shadowd\\connectorhelper'                         => '/ConnectorHelper.php',
                 'shadowd\\connection'                              => '/Connection.php',
                 'shadowd\\config'                                  => '/Config.php',
@@ -43,7 +43,7 @@ spl_autoload_register(
                 'shadowd\\exceptions\\processingexception'         => '/Exceptions/ProcessingException.php',
                 'shadowd\\exceptions\\unknownpathexception'        => '/Exceptions/UnknownPathException.php',
                 'services_json'                                    => '/libs/json.php'
-            );
+            ];
         }
 
         $cn = strtolower($class);

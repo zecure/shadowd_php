@@ -29,22 +29,22 @@ use shadowd\Exceptions\ProcessingException;
 
 class Connection
 {
-    /** @var array */
+    /** @var array<string, string> */
     private $options;
 
     /**
      * Construct a new object.
      *
-     * @param array $options
+     * @param array<string, string> $options
      * @throws InvalidProfileException if profile id has incorrect format
      */
-    public function __construct($options = array())
+    public function __construct($options)
     {
         if (empty($options['profile'])) {
             throw new InvalidProfileException('empty');
-        } else if (!preg_match('/^[\d]*?$/', $options['profile'])) {
+        } elseif (!preg_match('/^[\d]*?$/', $options['profile'])) {
             throw new InvalidProfileException('not integer');
-        } else if ((int)$options['profile'] === 0) {
+        } elseif ((int)$options['profile'] === 0) {
             throw new InvalidProfileException('zero');
         }
 
@@ -71,7 +71,7 @@ class Connection
      * Send user input to background server.
      *
      * @param Input $input
-     * @return array
+     * @return array<string, mixed>
      * @throws FailedConnectionException
      * @throws BadRequestException
      * @throws BadSignatureException
@@ -157,7 +157,7 @@ class Connection
      * Parse output from the background server.
      *
      * @param string $outputData
-     * @return array
+     * @return array<string, mixed>
      * @throws BadRequestException
      * @throws BadSignatureException
      * @throws BadJsonException
@@ -173,9 +173,9 @@ class Connection
 
         switch ($json['status']) {
             case SHADOWD_STATUS_OK:
-                return array(
+                return [
                     'attack' => false
-                );
+                ];
             case SHADOWD_STATUS_BAD_REQUEST:
                 throw new BadRequestException();
             case SHADOWD_STATUS_BAD_SIGNATURE:
@@ -183,16 +183,16 @@ class Connection
             case SHADOWD_STATUS_BAD_JSON:
                 throw new BadJsonException();
             case SHADOWD_STATUS_ATTACK:
-                return array(
+                return [
                     'attack'   => true,
                     'critical' => false,
                     'threats'  => $json['threats']
-                );
+                ];
             case SHADOWD_STATUS_CRITICAL_ATTACK:
-                return array(
+                return [
                     'attack'   => true,
                     'critical' => true
-                );
+                ];
             default:
                 throw new ProcessingException();
         }
