@@ -30,9 +30,9 @@ class ConnectorHelper
     public static function start()
     {
         try {
-            $output = new Output();
             [$configFile, $configSection] = self::getConfigOptions();
             $config = new Config($configFile, $configSection);
+            $output = new Output((bool)$config->get('debug'));
 
             $input = new Input([
                 'clientIpKey' => $config->get('client_ip'),
@@ -41,7 +41,6 @@ class ConnectorHelper
                 'rawData'     => $config->get('raw_data')
             ]);
 
-            // Establish a connection with shadowd and send the user input.
             $connection = new Connection([
                 'host'    => $config->get('host'),
                 'port'    => $config->get('port'),
@@ -50,51 +49,40 @@ class ConnectorHelper
                 'ssl'     => $config->get('ssl'),
                 'timeout' => $config->get('timeout')
             ]);
-
             $status = $connection->send($input);
 
-            // If observe mode is disabled eliminate the threats.
-            if (!$config->get('observe') && ($status['attack'] === true)) {
-                if ($status['critical'] === true) {
-                    if ($config->get('debug')) {
-                        $output->log(
-                            'shadowd: stopped critical attack from client: '
-                            . $input->getClientIp()
-                        );
-                    }
+            if ($status['attack'] === false || $config->get('observe')) {
+                return;
+            }
 
-                    $output->error();
-                }
+            if ($status['critical'] === true) {
+                $output->log(
+                    'stopped critical attack from client: ' . $input->getClientIp(),
+                    Output::LEVEL_DEBUG
+                );
+                $output->error();
+            }
 
-                if (!$input->defuseInput($status['threats'])) {
-                    if ($config->get('debug')) {
-                        $output->log(
-                            'shadowd: stopped attack from client: '
-                            . $input->getClientIp()
-                        );
-                    }
+            $output->log(
+                'removed threat from client: ' . $input->getClientIp(),
+                Output::LEVEL_DEBUG
+            );
 
-                    $output->error();
-                }
-
-                if ($config->get('debug')) {
-                    $output->log(
-                        'shadowd: removed threat from client: '
-                        . $input->getClientIp()
-                    );
-                }
+            if (!$input->defuseInput($status['threats'])) {
+                $output->error();
             }
         } catch (\Exception $e) {
             // Stop if there is no config object.
             if (!isset($config) || !$config) {
-                $output->log('shadowd: ' . get_class($e) . ': ' . $e->getTraceAsString());
+                $output->log(get_class($e) . ': ' . $e->getTraceAsString());
                 $output->error();
             }
 
             // Let PHP handle the log writing if debug is enabled.
-            if ($config->get('debug')) {
-                $output->log('shadowd: ' . get_class($e) . ': ' . $e->getTraceAsString());
-            }
+            $output->log(
+                get_class($e) . ': ' . $e->getTraceAsString(),
+                Output::LEVEL_DEBUG
+            );
 
             // If protection mode is enabled we can't let this request pass.
             if (!$config->get('observe')) {
