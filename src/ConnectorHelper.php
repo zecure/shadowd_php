@@ -47,7 +47,8 @@ class ConnectorHelper
                 'port'    => $config->get('port'),
                 'profile' => $config->get('profile', true),
                 'key'     => $config->get('key', true),
-                'ssl'     => $config->get('ssl')
+                'ssl'     => $config->get('ssl'),
+                'timeout' => $config->get('timeout')
             ));
 
             $status = $connection->send($input);
