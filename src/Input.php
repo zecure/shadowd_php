@@ -177,9 +177,11 @@ class Input
                 $output = array_replace($output, $this->flatten($inputValue, $inputKey, $newPath));
             }
         } elseif (($newPath !== false) && (is_string($input) || is_numeric($input))) {
-            // FIXME: the encoding does not work properly all the time yet.
-            if (!mb_check_encoding($input, 'UTF-8')) {
-                $input = mb_convert_encoding($input, 'UTF-8');
+            if (extension_loaded('mbstring')) {
+                // FIXME: the encoding does not work properly all the time yet.
+                if (!mb_check_encoding($input, 'UTF-8')) {
+                    $input = mb_convert_encoding($input, 'UTF-8');
+                }
             }
 
             return array($newPath => $input);
