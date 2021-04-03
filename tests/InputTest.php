@@ -18,11 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace shadowd;
+use shadowd\Input;
+use PHPUnit\Framework\TestCase;
 
-define('__MISC__', realpath(dirname(__FILE__)) . '/../misc/tests/');
-
-class InputTest extends \PHPUnit\Framework\TestCase {
+class InputTest extends TestCase {
     public function testGetInput() {
         $_GET['foo'] = 'bar';
         $_POST['foo'] = 'bar';
@@ -140,7 +139,7 @@ class InputTest extends \PHPUnit\Framework\TestCase {
     public function testRemoveIgnoredCaller() {
         $i = new Input(array(
             'callerKey'  => 'shadowd_caller',
-            'ignoreFile' => __MISC__ . 'ignore1.json'
+            'ignoreFile' => SHADOWD_MISC_TESTS . 'ignore1.json'
         ));
         $input = array(
             'GET|bar' => 'foobar'
@@ -157,7 +156,7 @@ class InputTest extends \PHPUnit\Framework\TestCase {
 
     public function testRemoveIgnoredPath() {
         $i = new Input(array(
-            'ignoreFile' => __MISC__ . 'ignore2.json'
+            'ignoreFile' => SHADOWD_MISC_TESTS . 'ignore2.json'
         ));
 
         $input = array(
@@ -176,7 +175,7 @@ class InputTest extends \PHPUnit\Framework\TestCase {
     public function testRemoveIgnoredCallerPath() {
         $i = new Input(array(
             'callerKey'  => 'shadowd_caller',
-            'ignoreFile' => __MISC__ . 'ignore3.json'
+            'ignoreFile' => SHADOWD_MISC_TESTS . 'ignore3.json'
         ));
 
         $_SERVER['shadowd_caller'] = 'foo';
@@ -202,7 +201,7 @@ class InputTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testGetHashes() {
-        $_SERVER['SCRIPT_FILENAME'] = __MISC__ . 'hashes';
+        $_SERVER['SCRIPT_FILENAME'] = SHADOWD_MISC_TESTS . 'hashes';
 
         $i = new Input();
         $hashes = $i->getHashes();

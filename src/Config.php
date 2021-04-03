@@ -27,9 +27,6 @@ use shadowd\Exceptions\MissingFileException;
 class Config
 {
     /** @var string */
-    private $file;
-
-    /** @var string */
     private $section;
 
     /** @var array */
@@ -38,25 +35,20 @@ class Config
     /**
      * Construct a new object and parse ini file.
      *
+     * @param string $file
      * @throws CorruptedFileException if config file is invalid
      * @throws MissingFileException if config file does not exist
      */
-    public function __construct()
+    public function __construct($file)
     {
-        if (getenv('SHADOWD_CONNECTOR_CONFIG')) {
-            $this->file = getenv('SHADOWD_CONNECTOR_CONFIG');
-        } else {
-            $this->file = '/etc/shadowd/connectors.ini';
+        if (!file_exists($file)) {
+            throw new MissingFileException($file);
         }
 
-        if (!file_exists($this->file)) {
-            throw new MissingFileException($this->file);
-        }
-
-        $this->data = parse_ini_file($this->file, true);
+        $this->data = parse_ini_file($file, true);
 
         if (!$this->data) {
-            throw new CorruptedFileException($this->file);
+            throw new CorruptedFileException($file);
         }
 
         if (getenv('SHADOWD_CONNECTOR_CONFIG_SECTION')) {

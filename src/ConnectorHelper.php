@@ -29,9 +29,15 @@ class ConnectorHelper
      */
     public static function start()
     {
+        if (getenv('SHADOWD_CONNECTOR_CONFIG')) {
+            $configFile = getenv('SHADOWD_CONNECTOR_CONFIG');
+        } else {
+            $configFile = '/etc/shadowd/connectors.ini';
+        }
+
         try {
             $output = new Output();
-            $config = new Config();
+            $config = new Config($configFile);
 
             $input = new Input(array(
                 'clientIpKey' => $config->get('client_ip'),

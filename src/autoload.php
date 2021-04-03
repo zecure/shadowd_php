@@ -72,3 +72,6 @@ if (!function_exists('json_encode')) {
 if (!defined('SHADOWD_CONNECTOR_VERSION')) {
     define('SHADOWD_CONNECTOR_VERSION', '0.0.0');
 }
+
+// Misc. test directory.
+define('SHADOWD_MISC_TESTS', realpath(dirname(__FILE__)) . '/../misc/tests/');
