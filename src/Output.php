@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2018 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2021 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -22,6 +22,22 @@ namespace shadowd;
 
 class Output
 {
+    const LEVEL_DEBUG = 1;
+    const LEVEL_CRITICAL = 2;
+
+    /** @var bool */
+    private $debug;
+
+    /**
+     * Output constructor.
+     *
+     * @param bool $debug
+     */
+    public function __construct($debug)
+    {
+        $this->debug = $debug;
+    }
+
     /**
      * Show a fatal error and stop.
      *
@@ -37,10 +53,14 @@ class Output
      * Write message to error log.
      *
      * @param string $message
+     * @param int $level
      * @return void
      */
-    public function log($message)
+    public function log($message, $level = self::LEVEL_CRITICAL)
     {
-        error_log($message);
+        if ($this->debug !== true && $level === self::LEVEL_DEBUG) {
+            return;
+        }
+        error_log(SHADOWD_LOG_PREFIX . $message);
     }
 }

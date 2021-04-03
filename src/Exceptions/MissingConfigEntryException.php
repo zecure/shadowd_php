@@ -18,8 +18,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once(__DIR__ . '/autoload.php');
+namespace shadowd\Exceptions;
 
-use shadowd\ConnectorHelper;
+class MissingConfigEntryException extends \Exception
+{
+    /** @var string */
+    private $key;
 
-ConnectorHelper::start();
+    /**
+     * MissingConfigEntryException constructor.
+     * @param string $key
+     */
+    public function __construct($key)
+    {
+        $this->key = $key;
+        parent::__construct();
+    }
+}

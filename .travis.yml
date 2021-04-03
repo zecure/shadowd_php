@@ -1,9 +1,9 @@
 language: php
 
 php:
-  - 7.0
-  - 7.1
   - 7.2
+  - 7.3
+  - 8.0
 
 before_script:
   - composer self-update
@@ -11,5 +11,5 @@ before_script:
 
 script:
   - php vendor/bin/phpcs --standard=PSR2 --ignore="autoload.php,Connector.php,libs/*" src
-  - php vendor/bin/phpstan analyse -c .phpstan.neon -l 7 src
+  - php vendor/bin/phpstan analyse -c .phpstan.neon -l 6 src
   - php vendor/bin/phpunit tests

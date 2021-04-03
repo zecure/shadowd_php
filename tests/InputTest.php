@@ -18,11 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace shadowd;
+use shadowd\Input;
+use PHPUnit\Framework\TestCase;
 
-define('__MISC__', realpath(dirname(__FILE__)) . '/../misc/tests/');
-
-class InputTest extends \PHPUnit\Framework\TestCase {
+class InputTest extends TestCase {
     public function testGetInput() {
         $_GET['foo'] = 'bar';
         $_POST['foo'] = 'bar';
@@ -31,7 +30,7 @@ class InputTest extends \PHPUnit\Framework\TestCase {
         $_SERVER['foo'] = 'bar';
         $_FILES['foo']['name'] = 'bar';
 
-        $i = new Input();
+        $i = new Input([]);
         $input = $i->getInput();
 
         $this->assertTrue(array_key_exists('GET|foo', $input));
@@ -48,14 +47,14 @@ class InputTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testFlatten() {
-        $input = array(
+        $input = [
             'foo' => 'bar',
-            'boo' => array(
+            'boo' => [
                 'quz' => 'qoz'
-            )
-        );
+            ]
+        ];
 
-        $i = new Input();
+        $i = new Input([]);
         $flattened = $i->flatten($input);
 
         $this->assertTrue(array_key_exists('foo', $flattened));
@@ -71,14 +70,14 @@ class InputTest extends \PHPUnit\Framework\TestCase {
         $_SERVER['HTTP_FOO'] = 'bar';
         $_FILES['foo']['name'] = 'bar';
 
-        $i = new Input();
-        $this->assertTrue($i->defuseInput(array(
+        $i = new Input([]);
+        $this->assertTrue($i->defuseInput([
             'GET|foo',
             'POST|foo',
             'COOKIE|foo',
             'SERVER|HTTP_FOO',
             'FILES|foo'
-        )));
+        ]));
 
         $this->assertArrayNotHasKey('foo', $_GET);
         $this->assertArrayNotHasKey('foo', $_POST);
@@ -89,7 +88,7 @@ class InputTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testEscapeKey() {
-        $i = new Input();
+        $i = new Input([]);
 
         $this->assertEquals('foo', $i->escapeKey('foo'));
         $this->assertEquals('foo\\|bar', $i->escapeKey('foo|bar'));
@@ -99,7 +98,7 @@ class InputTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testUnescapeKey() {
-        $i = new Input();
+        $i = new Input([]);
 
         $this->assertEquals('foo', $i->unescapeKey('foo'));
         $this->assertEquals('foo|bar', $i->unescapeKey('foo\\|bar'));
@@ -108,7 +107,7 @@ class InputTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testSplitSpath() {
-        $i = new Input();
+        $i = new Input([]);
 
         $test1 = $i->splitPath('foo');
         $this->assertEquals(1, count($test1));
@@ -138,13 +137,13 @@ class InputTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testRemoveIgnoredCaller() {
-        $i = new Input(array(
+        $i = new Input([
             'callerKey'  => 'shadowd_caller',
-            'ignoreFile' => __MISC__ . 'ignore1.json'
-        ));
-        $input = array(
+            'ignoreFile' => SHADOWD_MISC_TESTS . 'ignore1.json'
+        ]);
+        $input = [
             'GET|bar' => 'foobar'
-        );
+        ];
 
         $_SERVER['shadowd_caller'] = 'foo';
         $output = $i->removeIgnored($input);
@@ -156,55 +155,55 @@ class InputTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testRemoveIgnoredPath() {
-        $i = new Input(array(
-            'ignoreFile' => __MISC__ . 'ignore2.json'
-        ));
+        $i = new Input([
+            'ignoreFile' => SHADOWD_MISC_TESTS . 'ignore2.json'
+        ]);
 
-        $input = array(
+        $input = [
             'GET|bar' => 'foobar'
-        );
+        ];
         $output = $i->removeIgnored($input);
         $this->assertArrayNotHasKey('GET|bar', $output);
 
-        $input = array(
+        $input = [
             'GET|boo' => 'foobar'
-        );
+        ];
         $output = $i->removeIgnored($input);
         $this->assertArrayHasKey('GET|boo', $output);
     }
 
     public function testRemoveIgnoredCallerPath() {
-        $i = new Input(array(
+        $i = new Input([
             'callerKey'  => 'shadowd_caller',
-            'ignoreFile' => __MISC__ . 'ignore3.json'
-        ));
+            'ignoreFile' => SHADOWD_MISC_TESTS . 'ignore3.json'
+        ]);
 
         $_SERVER['shadowd_caller'] = 'foo';
-        $input = array(
+        $input = [
             'GET|bar' => 'foobar'
-        );
+        ];
         $output = $i->removeIgnored($input);
         $this->assertArrayNotHasKey('GET|bar', $output);
 
         $_SERVER['shadowd_caller'] = 'foo';
-        $input = array(
+        $input = [
             'GET|boo' => 'foobar'
-        );
+        ];
         $output = $i->removeIgnored($input);
         $this->assertArrayHasKey('GET|boo', $output);
 
         $_SERVER['shadowd_caller'] = 'boo';
-        $input = array(
+        $input = [
             'GET|bar' => 'foobar'
-        );
+        ];
         $output = $i->removeIgnored($input);
         $this->assertArrayHasKey('GET|bar', $output);
     }
 
     public function testGetHashes() {
-        $_SERVER['SCRIPT_FILENAME'] = __MISC__ . 'hashes';
+        $_SERVER['SCRIPT_FILENAME'] = SHADOWD_MISC_TESTS . 'hashes';
 
-        $i = new Input();
+        $i = new Input([]);
         $hashes = $i->getHashes();
 
         $this->assertTrue(array_key_exists('sha256', $hashes));

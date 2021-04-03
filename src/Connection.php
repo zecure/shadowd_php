@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2018 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2021 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -20,21 +20,32 @@
 
 namespace shadowd;
 
+use shadowd\Exceptions\BadJsonException;
+use shadowd\Exceptions\BadRequestException;
+use shadowd\Exceptions\BadSignatureException;
+use shadowd\Exceptions\FailedConnectionException;
+use shadowd\Exceptions\InvalidProfileException;
+use shadowd\Exceptions\ProcessingException;
+
 class Connection
 {
-    /** @var array */
+    /** @var array<string, string> */
     private $options;
 
     /**
      * Construct a new object.
      *
-     * @param array $options
-     * @throws \Exception if options are wrong
+     * @param array<string, string> $options
+     * @throws InvalidProfileException if profile id has incorrect format
      */
-    public function __construct($options = array())
+    public function __construct($options)
     {
-        if (!preg_match('/^[0-9]*$/', $options['profile'])) {
-            throw new \Exception('profile id not integer');
+        if (empty($options['profile'])) {
+            throw new InvalidProfileException('empty');
+        } elseif (!preg_match('/^[\d]*?$/', $options['profile'])) {
+            throw new InvalidProfileException('not integer');
+        } elseif ((int)$options['profile'] === 0) {
+            throw new InvalidProfileException('zero');
         }
 
         if (!isset($options['host']) || (!$options['host'])) {
@@ -49,6 +60,10 @@ class Connection
             $options['ssl'] = false;
         }
 
+        if (!isset($options['timeout'])) {
+            $options['timeout'] = 5;
+        }
+
         $this->options = $options;
     }
 
@@ -56,99 +71,140 @@ class Connection
      * Send user input to background server.
      *
      * @param Input $input
-     * @return array
-     * @throws \Exception if connection can not be established or data invalid
+     * @return array<string, mixed>
+     * @throws FailedConnectionException
+     * @throws BadRequestException
+     * @throws BadSignatureException
+     * @throws BadJsonException
+     * @throws ProcessingException
      */
     public function send(Input $input)
     {
-        // Prepare data.
-        $data = array(
+        $fp = $this->establishConnection();
+        fwrite($fp, $this->getInputData($input));
+
+        $outputData = '';
+        while (!feof($fp)) {
+            $outputData .= fgets($fp, 1024);
+        }
+
+        fclose($fp);
+        return $this->parseOutputData($outputData);
+    }
+
+    /**
+     * Establish a connection to the background server.
+     *
+     * @return resource
+     * @throws FailedConnectionException if connection can not be established
+     */
+    private function establishConnection()
+    {
+        $context = stream_context_create();
+
+        if ($this->options['ssl']) {
+            stream_context_set_option($context, 'ssl', 'verify_host', true);
+            stream_context_set_option($context, 'ssl', 'cafile', $this->options['ssl']);
+            stream_context_set_option($context, 'ssl', 'verify_peer', true);
+            $prefix = 'ssl';
+        } else {
+            $prefix = 'tcp';
+        }
+
+        $fp = @stream_socket_client(
+            $prefix . '://' . $this->options['host'] . ':' . $this->options['port'],
+            $errorCode,
+            $errorMessage,
+            (int)$this->options['timeout'],
+            STREAM_CLIENT_CONNECT,
+            $context
+        );
+
+        if ($fp) {
+            return $fp;
+        }
+
+        if ($errorCode) {
+            throw new FailedConnectionException($errorMessage);
+        }
+        throw new FailedConnectionException();
+    }
+
+    /**
+     * Prepare the message to the background server.
+     *
+     * @param Input $input
+     * @return string
+     */
+    private function getInputData(Input $input)
+    {
+        $data = [
             'version'   => SHADOWD_CONNECTOR_VERSION,
             'client_ip' => $input->getClientIp(),
             'caller'    => $input->getCaller(),
             'resource'  => $input->getResource(),
             'input'     => $input->getInput(),
             'hashes'    => $input->getHashes()
-        );
+        ];
 
         $json = json_encode($data);
-        $hmac_json = $this->sign($this->options['key'], $json);
+        $hmac = $this->sign($this->options['key'], $json);
 
-        // Establish connection.
-        $context = stream_context_create();
-
-        if ($this->options['ssl']) {
-            $result = stream_context_set_option($context, 'ssl', 'verify_host', true);
-            $result = stream_context_set_option($context, 'ssl', 'cafile', $this->options['ssl']);
-            $result = stream_context_set_option($context, 'ssl', 'verify_peer', true);
-        }
-
-        $resource = ($this->options['ssl'] ?
-                'ssl' : 'tcp') . '://' . $this->options['host'] . ':' . $this->options['port'];
-        $fp = @stream_socket_client($resource, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $context);
-
-        if (!$fp) {
-            if ($errno) {
-                throw new \Exception('network error: ' . strtolower($errstr));
-            } else {
-                throw new \Exception('unknown network error');
-            }
-        }
-
-        // Send data.
-        fwrite($fp, $this->options['profile'] . "\n" . $hmac_json . "\n" . $json . "\n");
-
-        // Get output.
-        $output = '';
-
-        while (!feof($fp)) {
-            $output .= fgets($fp, 1024);
-        }
-
-        fclose($fp);
-
-        return $this->parseOutput($output);
+        return $this->options['profile'] . "\n" . $hmac . "\n" . $json . "\n";
     }
 
     /**
      * Parse output from the background server.
      *
-     * @param string $output
-     * @return array
-     * @throws \Exception if something is wrong with the output
+     * @param string $outputData
+     * @return array<string, mixed>
+     * @throws BadRequestException
+     * @throws BadSignatureException
+     * @throws BadJsonException
+     * @throws ProcessingException
      */
-    private function parseOutput($output)
+    private function parseOutputData($outputData)
     {
-        $json = json_decode($output, true);
+        $json = json_decode($outputData, true);
+
+        if (empty($json)) {
+            throw new ProcessingException();
+        }
 
         switch ($json['status']) {
-            case '1': // STATUS_OK
-                return array(
+            case SHADOWD_STATUS_OK:
+                return [
                     'attack' => false
-                );
-            case '2': // STATUS_BAD_REQUEST
-                throw new \Exception('bad request');
-            case '3': // STATUS_BAD_SIGNATURE
-                throw new \Exception('bad signature');
-            case '4': // STATUS_BAD_JSON
-                throw new \Exception('bad json');
-            case '5': // STATUS_ATTACK
-                return array(
+                ];
+            case SHADOWD_STATUS_BAD_REQUEST:
+                throw new BadRequestException();
+            case SHADOWD_STATUS_BAD_SIGNATURE:
+                throw new BadSignatureException();
+            case SHADOWD_STATUS_BAD_JSON:
+                throw new BadJsonException();
+            case SHADOWD_STATUS_ATTACK:
+                return [
                     'attack'   => true,
                     'critical' => false,
                     'threats'  => $json['threats']
-                );
-            case '6': // STATUS_CRITICAL_ATTACK
-                return array(
+                ];
+            case SHADOWD_STATUS_CRITICAL_ATTACK:
+                return [
                     'attack'   => true,
                     'critical' => true
-                );
+                ];
             default:
-                throw new \Exception('processing error');
+                throw new ProcessingException();
         }
     }
 
-    /* Sign the json encoded message as password verification. */
+    /**
+     * Sign the json encoded message as password verification.
+     *
+     * @param string $key
+     * @param string $json
+     * @return string
+     */
     private function sign($key, $json)
     {
         return hash_hmac('sha256', $json, $key);

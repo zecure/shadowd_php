@@ -18,8 +18,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once(__DIR__ . '/autoload.php');
+namespace shadowd\Exceptions;
 
-use shadowd\ConnectorHelper;
+class MissingFileException extends \Exception
+{
+    /** @var string */
+    private $missingFile;
 
-ConnectorHelper::start();
+    /**
+     * MissingFileException constructor.
+     * @param string $missingFile
+     */
+    public function __construct($missingFile)
+    {
+        $this->missingFile = $missingFile;
+        parent::__construct();
+    }
+}

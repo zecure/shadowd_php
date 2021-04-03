@@ -18,8 +18,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once(__DIR__ . '/autoload.php');
+namespace shadowd\Exceptions;
 
-use shadowd\ConnectorHelper;
+class UnknownPathException extends \Exception
+{
+    /** @var string */
+    private $unknownPath;
 
-ConnectorHelper::start();
+    /**
+     * UnknownPathException constructor.
+     * @param string $unknownPath
+     */
+    public function __construct($unknownPath)
+    {
+        $this->unknownPath = $unknownPath;
+        parent::__construct();
+    }
+}

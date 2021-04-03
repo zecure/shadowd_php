@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2018 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2021 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -20,17 +20,21 @@
 
 namespace shadowd;
 
+use shadowd\Exceptions\CorruptedFileException;
+use shadowd\Exceptions\MissingFileException;
+use shadowd\Exceptions\UnknownPathException;
+
 class Input
 {
-    /** @var array */
+    /** @var array<string, string> */
     private $options;
 
     /**
      * Construct a new object.
      *
-     * @param array $options
+     * @param array<string, string> $options
      */
-    public function __construct($options = array())
+    public function __construct($options)
     {
         if (!isset($options['clientIpKey']) || !$options['clientIpKey']) {
             $options['clientIpKey'] = 'REMOTE_ADDR';
@@ -97,16 +101,16 @@ class Input
     /**
      * Aggregate and get the user input.
      *
-     * @return array
+     * @return array<string, string>
      */
     public function getInput()
     {
         // Create copies of input sources. Only GET/POST/COOKIE here!
-        $input = array(
+        $input = [
             'GET'    => $_GET,
             'POST'   => $_POST,
             'COOKIE' => $_COOKIE
-        );
+        ];
 
         // Strip slashes of GPC input if magic_quotes_gpc is activated to get the real values.
         if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
@@ -150,14 +154,14 @@ class Input
     /**
      * Convert nested arrays to a flat array.
      *
-     * @param array|string $input
+     * @param array<mixed>|string $input
      * @param string|bool $key
      * @param string|bool $path
-     * @return array
+     * @return array<string, string>
      */
     public function flatten($input, $key = false, $path = false)
     {
-        $output = array();
+        $output = [];
 
         // The next part generates an unique identifier for every input element.
         $newPath = false;
@@ -179,7 +183,7 @@ class Input
             foreach ($input as $inputKey => $inputValue) {
                 $output = array_replace($output, $this->flatten($inputValue, $inputKey, $newPath));
             }
-        } elseif (($newPath !== false) && (is_string($input) || is_numeric($input))) {
+        } elseif ($newPath !== false) {
             if (extension_loaded('mbstring')) {
                 // FIXME: the encoding does not work properly all the time yet.
                 if (!mb_check_encoding($input, 'UTF-8')) {
@@ -187,7 +191,7 @@ class Input
                 }
             }
 
-            return array($newPath => $input);
+            return [$newPath => $input];
         }
 
         return $output;
@@ -196,29 +200,32 @@ class Input
     /**
      * Read in entries that should be ignored and remove them from the input.
      *
-     * @param array $input
-     * @return array
-     * @throws \Exception if file corrupted or inaccessible
+     * @param array<string, string> $input
+     * @return array<string, string>
+     * @throws CorruptedFileException if ignore file is invalid
+     * @throws MissingFileException if ignore file is missing
      */
     public function removeIgnored($input)
     {
-        $content = file_get_contents($this->options['ignoreFile']);
+        if (!file_exists($this->options['ignoreFile'])) {
+            throw new MissingFileException($this->options['ignoreFile']);
+        }
 
+        $content = file_get_contents($this->options['ignoreFile']);
         if ($content === false) {
-            throw new \Exception('could not open ignore file');
+            throw new CorruptedFileException($this->options['ignoreFile']);
         }
 
         $json = json_decode($content, true);
-
         if ($json === null) {
-            throw new \Exception('ignore file is corrupted');
+            throw new CorruptedFileException($this->options['ignoreFile']);
         }
 
         foreach ($json as $entry) {
             // If there is only a caller and the caller matches delete all input.
             if (!isset($entry['path']) && isset($entry['caller'])) {
                 if ($this->getCaller() === $entry['caller']) {
-                    return array();
+                    return [];
                 }
             } else {
                 // Skip entry if caller is set, but does not match.
@@ -241,13 +248,13 @@ class Input
     /**
      * Calculate and return cryptographically secure checksums.
      *
-     * @return array
+     * @return array<string, string>
      */
     public function getHashes()
     {
-        $hashes = array();
+        $hashes = [];
 
-        foreach (array('sha256') as $algorithm) {
+        foreach (['sha256'] as $algorithm) {
             $hashes[$algorithm] = hash_file($algorithm, $_SERVER['SCRIPT_FILENAME']);
         }
 
@@ -261,7 +268,7 @@ class Input
      *
      * @param string[] $threats
      * @return bool
-     * @throws \Exception if threat is invalid
+     * @throws UnknownPathException if root path is invalid
      */
     public function defuseInput($threats)
     {
@@ -328,7 +335,7 @@ class Input
                 case 'DATA':
                     return false;
                 default:
-                    throw new \Exception('unknown root path');
+                    throw new UnknownPathException($path);
             }
         }
 
@@ -349,7 +356,7 @@ class Input
      */
     public function escapeKey($key)
     {
-        return str_replace(array('\\', '|'), array('\\\\', '\\|'), $key);
+        return str_replace(['\\', '|'], ['\\\\', '\\|'], $key);
     }
 
     /**
@@ -360,7 +367,7 @@ class Input
      */
     public function unescapeKey($key)
     {
-        return str_replace(array('\\\\', '\\|'), array('\\', '|'), $key);
+        return str_replace(['\\\\', '\\|'], ['\\', '|'], $key);
     }
 
     /**
@@ -379,13 +386,13 @@ class Input
      *
      * Warning, this function uses value by reference!
      *
-     * @param array|string $input
+     * @param array<mixed>|string $input
      * @return void
      */
     private function stripslashes(&$input)
     {
         if (is_array($input)) {
-            array_walk($input, array($this, 'stripslashes'));
+            array_walk($input, [$this, 'stripslashes']);
             return;
         }
 

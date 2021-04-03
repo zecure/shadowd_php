@@ -18,8 +18,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once(__DIR__ . '/autoload.php');
+namespace shadowd\Exceptions;
 
-use shadowd\ConnectorHelper;
+class CorruptedFileException extends \Exception
+{
+    /** @var string */
+    private $corruptedFile;
 
-ConnectorHelper::start();
+    /**
+     * CorruptedFileException constructor.
+     * @param string $corruptedFile
+     */
+    public function __construct($corruptedFile)
+    {
+        $this->corruptedFile = $corruptedFile;
+        parent::__construct();
+    }
+}
