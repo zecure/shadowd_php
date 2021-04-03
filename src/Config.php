@@ -21,7 +21,6 @@
 namespace shadowd;
 
 use shadowd\Exceptions\CorruptedFileException;
-use shadowd\Exceptions\EmptyConfigException;
 use shadowd\Exceptions\MissingConfigEntryException;
 use shadowd\Exceptions\MissingFileException;
 
