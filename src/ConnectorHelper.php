@@ -29,15 +29,10 @@ class ConnectorHelper
      */
     public static function start()
     {
-        if (getenv('SHADOWD_CONNECTOR_CONFIG')) {
-            $configFile = getenv('SHADOWD_CONNECTOR_CONFIG');
-        } else {
-            $configFile = '/etc/shadowd/connectors.ini';
-        }
-
         try {
             $output = new Output();
-            $config = new Config($configFile);
+            [$configFile, $configSection] = self::getConfigOptions();
+            $config = new Config($configFile, $configSection);
 
             $input = new Input(array(
                 'clientIpKey' => $config->get('client_ip'),
@@ -111,5 +106,25 @@ class ConnectorHelper
                 $output->error();
             }
         }
+    }
+
+    /**
+     * @return array
+     */
+    private static function getConfigOptions()
+    {
+        if (getenv('SHADOWD_CONNECTOR_CONFIG')) {
+            $file = getenv('SHADOWD_CONNECTOR_CONFIG');
+        } else {
+            $file = SHADOWD_DEFAULT_CONFIG_FILE;
+        }
+
+        if (getenv('SHADOWD_CONNECTOR_CONFIG_SECTION')) {
+            $section = getenv('SHADOWD_CONNECTOR_CONFIG_SECTION');
+        } else {
+            $section = SHADOWD_DEFAULT_CONFIG_SECTION;
+        }
+
+        return [$file, $section];
     }
 }

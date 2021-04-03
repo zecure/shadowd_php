@@ -18,8 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once(__DIR__ . '/autoload.php');
-
-use shadowd\ConnectorHelper;
-
-ConnectorHelper::start();
+define('SHADOWD_CONNECTOR_VERSION', '2.0.2-php');
+define('SHADOWD_MISC_TESTS', SHADOWD_ROOT_DIR . '/misc/tests/');
+define('SHADOWD_DEFAULT_CONFIG_FILE', '/etc/shadowd/connectors.ini');
+define('SHADOWD_DEFAULT_CONFIG_SECTION', 'shadowd_php');
+define('SHADOWD_STATUS_OK', '1');
+define('SHADOWD_STATUS_BAD_REQUEST', '2');
+define('SHADOWD_STATUS_BAD_SIGNATURE', '3');
+define('SHADOWD_STATUS_BAD_JSON', '4');
+define('SHADOWD_STATUS_ATTACK', '5');
+define('SHADOWD_STATUS_CRITICAL_ATTACK', '6');

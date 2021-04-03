@@ -18,6 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+define('SHADOWD_ROOT_DIR', realpath(__DIR__ . '/..'));
+require_once(SHADOWD_ROOT_DIR . '/src/Constants.php');
+
 spl_autoload_register(
     function($class) {
         static $classes = null;
@@ -67,11 +70,3 @@ if (!function_exists('json_encode')) {
         return $JSON->encode($var);
     }
 }
-
-// Fallback for tests.
-if (!defined('SHADOWD_CONNECTOR_VERSION')) {
-    define('SHADOWD_CONNECTOR_VERSION', '0.0.0');
-}
-
-// Misc. test directory.
-define('SHADOWD_MISC_TESTS', realpath(dirname(__FILE__)) . '/../misc/tests/');

@@ -135,23 +135,23 @@ class Connection
         $json = json_decode($output, true);
 
         switch ($json['status']) {
-            case '1': // STATUS_OK
+            case SHADOWD_STATUS_OK:
                 return array(
                     'attack' => false
                 );
-            case '2': // STATUS_BAD_REQUEST
+            case SHADOWD_STATUS_BAD_REQUEST:
                 throw new BadRequestException();
-            case '3': // STATUS_BAD_SIGNATURE
+            case SHADOWD_STATUS_BAD_SIGNATURE:
                 throw new BadSignatureException();
-            case '4': // STATUS_BAD_JSON
+            case SHADOWD_STATUS_BAD_JSON:
                 throw new BadJsonException();
-            case '5': // STATUS_ATTACK
+            case SHADOWD_STATUS_ATTACK:
                 return array(
                     'attack'   => true,
                     'critical' => false,
                     'threats'  => $json['threats']
                 );
-            case '6': // STATUS_CRITICAL_ATTACK
+            case SHADOWD_STATUS_CRITICAL_ATTACK:
                 return array(
                     'attack'   => true,
                     'critical' => true

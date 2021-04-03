@@ -27,16 +27,16 @@ use PHPUnit\Framework\TestCase;
 class ConfigTest extends TestCase {
     public function testConstructorCorruptedFile() {
         $this->expectException(CorruptedFileException::class);
-        new Config(SHADOWD_MISC_TESTS . '/connectors_invalid.ini');
+        new Config(SHADOWD_MISC_TESTS . '/connectors_invalid.ini', '');
     }
 
     public function testConstructorMissingFile() {
         $this->expectException(MissingFileException::class);
-        new Config(SHADOWD_MISC_TESTS . '/notfound');
+        new Config(SHADOWD_MISC_TESTS . '/notfound', '');
     }
 
     public function testGet() {
-        $config = new Config(SHADOWD_MISC_TESTS . '/connectors_valid.ini');
+        $config = new Config(SHADOWD_MISC_TESTS . '/connectors_valid.ini', 'shadowd_php');
 
         $optionalValue1 = $config->get('notfound');
         $this->assertFalse($optionalValue1);
@@ -49,7 +49,7 @@ class ConfigTest extends TestCase {
     }
 
     public function testGetMissingEntry() {
-        $config = new Config(SHADOWD_MISC_TESTS . '/connectors_valid.ini');
+        $config = new Config(SHADOWD_MISC_TESTS . '/connectors_valid.ini', '');
 
         $this->expectException(MissingConfigEntryException::class);
         $config->get('notfound', true);

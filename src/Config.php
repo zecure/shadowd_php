@@ -36,26 +36,22 @@ class Config
      * Construct a new object and parse ini file.
      *
      * @param string $file
+     * @param string $section
      * @throws CorruptedFileException if config file is invalid
      * @throws MissingFileException if config file does not exist
      */
-    public function __construct($file)
+    public function __construct($file, $section)
     {
         if (!file_exists($file)) {
             throw new MissingFileException($file);
         }
 
         $this->data = parse_ini_file($file, true);
-
         if (!$this->data) {
             throw new CorruptedFileException($file);
         }
 
-        if (getenv('SHADOWD_CONNECTOR_CONFIG_SECTION')) {
-            $this->section = getenv('SHADOWD_CONNECTOR_CONFIG_SECTION');
-        } else {
-            $this->section = 'shadowd_php';
-        }
+        $this->section = $section;
     }
 
     /**
