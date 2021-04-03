@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2018 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2021 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -20,6 +20,13 @@
 
 namespace shadowd;
 
+use shadowd\Exceptions\BadJsonException;
+use shadowd\Exceptions\BadRequestException;
+use shadowd\Exceptions\BadSignatureException;
+use shadowd\Exceptions\FailedConnectionException;
+use shadowd\Exceptions\InvalidProfileException;
+use shadowd\Exceptions\ProcessingException;
+
 class Connection
 {
     /** @var array */
@@ -29,12 +36,16 @@ class Connection
      * Construct a new object.
      *
      * @param array $options
-     * @throws \Exception if options are wrong
+     * @throws InvalidProfileException if profile id has incorrect format
      */
     public function __construct($options = array())
     {
-        if (!preg_match('/^[0-9]*$/', $options['profile'])) {
-            throw new \Exception('profile id not integer');
+        if (empty($options['profile'])) {
+            throw new InvalidProfileException('empty');
+        } else if (!preg_match('/^[\d]*?$/', $options['profile'])) {
+            throw new InvalidProfileException('not integer');
+        } else if ((int)$options['profile'] === 0) {
+            throw new InvalidProfileException('zero');
         }
 
         if (!isset($options['host']) || (!$options['host'])) {
@@ -57,7 +68,7 @@ class Connection
      *
      * @param Input $input
      * @return array
-     * @throws \Exception if connection can not be established or data invalid
+     * @throws FailedConnectionException if connection can not be established
      */
     public function send(Input $input)
     {
@@ -78,20 +89,19 @@ class Connection
         $context = stream_context_create();
 
         if ($this->options['ssl']) {
-            $result = stream_context_set_option($context, 'ssl', 'verify_host', true);
-            $result = stream_context_set_option($context, 'ssl', 'cafile', $this->options['ssl']);
-            $result = stream_context_set_option($context, 'ssl', 'verify_peer', true);
+            stream_context_set_option($context, 'ssl', 'verify_host', true);
+            stream_context_set_option($context, 'ssl', 'cafile', $this->options['ssl']);
+            stream_context_set_option($context, 'ssl', 'verify_peer', true);
         }
 
-        $resource = ($this->options['ssl'] ?
-                'ssl' : 'tcp') . '://' . $this->options['host'] . ':' . $this->options['port'];
+        $resource = ($this->options['ssl'] ? 'ssl' : 'tcp') . '://' . $this->options['host'] . ':' . $this->options['port'];
         $fp = @stream_socket_client($resource, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $context);
 
         if (!$fp) {
             if ($errno) {
-                throw new \Exception('network error: ' . strtolower($errstr));
+                throw new FailedConnectionException($errstr);
             } else {
-                throw new \Exception('unknown network error');
+                throw new FailedConnectionException();
             }
         }
 
@@ -115,7 +125,10 @@ class Connection
      *
      * @param string $output
      * @return array
-     * @throws \Exception if something is wrong with the output
+     * @throws BadRequestException
+     * @throws BadSignatureException
+     * @throws BadJsonException
+     * @throws ProcessingException
      */
     private function parseOutput($output)
     {
@@ -127,11 +140,11 @@ class Connection
                     'attack' => false
                 );
             case '2': // STATUS_BAD_REQUEST
-                throw new \Exception('bad request');
+                throw new BadRequestException();
             case '3': // STATUS_BAD_SIGNATURE
-                throw new \Exception('bad signature');
+                throw new BadSignatureException();
             case '4': // STATUS_BAD_JSON
-                throw new \Exception('bad json');
+                throw new BadJsonException();
             case '5': // STATUS_ATTACK
                 return array(
                     'attack'   => true,
@@ -144,7 +157,7 @@ class Connection
                     'critical' => true
                 );
             default:
-                throw new \Exception('processing error');
+                throw new ProcessingException();
         }
     }
 

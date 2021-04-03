@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2018 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2021 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -21,5 +21,7 @@
 define('SHADOWD_CONNECTOR_VERSION', '2.0.2-php');
 
 require_once(realpath(dirname(__FILE__)) . '/autoload.php');
+
+use shadowd\ConnectorHelper;
 
 ConnectorHelper::start();

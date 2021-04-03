@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2018 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2021 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -20,6 +20,11 @@
 
 namespace shadowd;
 
+use shadowd\Exceptions\CorruptedFileException;
+use shadowd\Exceptions\EmptyConfigException;
+use shadowd\Exceptions\MissingConfigEntryException;
+use shadowd\Exceptions\MissingFileException;
+
 class Config
 {
     /** @var string */
@@ -33,6 +38,9 @@ class Config
 
     /**
      * Construct a new object and parse ini file.
+     *
+     * @throws CorruptedFileException if config file is invalid
+     * @throws MissingFileException if config file does not exist
      */
     public function __construct()
     {
@@ -42,10 +50,14 @@ class Config
             $this->file = '/etc/shadowd/connectors.ini';
         }
 
+        if (!file_exists($this->file)) {
+            throw new MissingFileException($this->file);
+        }
+
         $this->data = parse_ini_file($this->file, true);
 
         if (!$this->data) {
-            throw new \Exception('config error');
+            throw new CorruptedFileException($this->file);
         }
 
         if (getenv('SHADOWD_CONNECTOR_CONFIG_SECTION')) {
@@ -61,13 +73,13 @@ class Config
      * @param string $key
      * @param bool $required
      * @return string|bool
-     * @throws \Exception if value required but missing
+     * @throws MissingConfigEntryException if value required but missing
      */
     public function get($key, $required = false)
     {
         if (!isset($this->data[$this->section][$key])) {
             if ($required) {
-                throw new \Exception($key . ' in config missing');
+                throw new MissingConfigEntryException($key);
             } else {
                 return false;
             }

@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2018 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2021 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -19,6 +19,10 @@
  */
 
 namespace shadowd;
+
+use shadowd\Exceptions\CorruptedFileException;
+use shadowd\Exceptions\MissingFileException;
+use shadowd\Exceptions\UnknownPathException;
 
 class Input
 {
@@ -198,20 +202,23 @@ class Input
      *
      * @param array $input
      * @return array
-     * @throws \Exception if file corrupted or inaccessible
+     * @throws CorruptedFileException if ignore file is invalid
+     * @throws MissingFileException if ignore file is missing
      */
     public function removeIgnored($input)
     {
-        $content = file_get_contents($this->options['ignoreFile']);
+        if (!file_exists($this->options['ignoreFile'])) {
+            throw new MissingFileException($this->options['ignoreFile']);
+        }
 
+        $content = file_get_contents($this->options['ignoreFile']);
         if ($content === false) {
-            throw new \Exception('could not open ignore file');
+            throw new CorruptedFileException($this->options['ignoreFile']);
         }
 
         $json = json_decode($content, true);
-
         if ($json === null) {
-            throw new \Exception('ignore file is corrupted');
+            throw new CorruptedFileException($this->options['ignoreFile']);
         }
 
         foreach ($json as $entry) {
@@ -261,7 +268,7 @@ class Input
      *
      * @param string[] $threats
      * @return bool
-     * @throws \Exception if threat is invalid
+     * @throws UnknownPathException if root path is invalid
      */
     public function defuseInput($threats)
     {
@@ -328,7 +335,7 @@ class Input
                 case 'DATA':
                     return false;
                 default:
-                    throw new \Exception('unknown root path');
+                    throw new UnknownPathException($path);
             }
         }
 

@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2018 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2021 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -24,12 +24,22 @@ spl_autoload_register(
 
         if ($classes === null) {
             $classes = array(
-                'shadowd\\connectorhelper' => '/ConnectorHelper.php',
-                'shadowd\\connection'      => '/Connection.php',
-                'shadowd\\config'          => '/Config.php',
-                'shadowd\\input'           => '/Input.php',
-                'shadowd\\output'          => '/Output.php',
-                'services_json'            => '/libs/json.php'
+                'shadowd\\connectorhelper'                         => '/ConnectorHelper.php',
+                'shadowd\\connection'                              => '/Connection.php',
+                'shadowd\\config'                                  => '/Config.php',
+                'shadowd\\input'                                   => '/Input.php',
+                'shadowd\\output'                                  => '/Output.php',
+                'shadowd\\exceptions\\badjsonexception'            => '/Exceptions/BadJsonException.php',
+                'shadowd\\exceptions\\badrequestexception'         => '/Exceptions/BadRequestException.php',
+                'shadowd\\exceptions\\badsignatureexception'       => '/Exceptions/BadSignatureException.php',
+                'shadowd\\exceptions\\corruptedfileexception'      => '/Exceptions/CorruptedFileException.php',
+                'shadowd\\exceptions\\failedconnectionexception'   => '/Exceptions/FailedConnectionException.php',
+                'shadowd\\exceptions\\invalidprofileexception'     => '/Exceptions/InvalidProfileException.php',
+                'shadowd\\exceptions\\missingconfigentryexception' => '/Exceptions/MissingConfigEntryException.php',
+                'shadowd\\exceptions\\missingfileexception'        => '/Exceptions/MissingFileException.php',
+                'shadowd\\exceptions\\processingexception'         => '/Exceptions/ProcessingException.php',
+                'shadowd\\exceptions\\unknownpathexception'        => '/Exceptions/UnknownPathException.php',
+                'services_json'                                    => '/libs/json.php'
             );
         }
 

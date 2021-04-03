@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2018 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2021 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -32,10 +32,6 @@ class ConnectorHelper
         try {
             $output = new Output();
             $config = new Config();
-
-            if (!$output || !$config) {
-                throw new \Exception('initialization failed');
-            }
 
             $input = new Input(array(
                 'clientIpKey' => $config->get('client_ip'),
@@ -95,13 +91,13 @@ class ConnectorHelper
 
             // Stop if there is no config object.
             if (!$config) {
-                $output->log('shadowd: ' . rtrim($e->getMessage()));
+                $output->log('shadowd: ' . get_class($e) . ': ' . $e->getTraceAsString());
                 $output->error();
             }
 
             // Let PHP handle the log writing if debug is enabled.
             if ($config->get('debug')) {
-                $output->log('shadowd: ' . rtrim($e->getMessage()));
+                $output->log('shadowd: ' . get_class($e) . ': ' . $e->getTraceAsString());
             }
 
             // If protection mode is enabled we can't let this request pass.

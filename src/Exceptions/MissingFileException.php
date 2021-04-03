@@ -18,29 +18,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace shadowd;
+namespace shadowd\Exceptions;
 
-class Output
+class MissingFileException extends \Exception
 {
-    /**
-     * Show a fatal error and stop.
-     *
-     * @return void
-     */
-    public function error()
-    {
-        header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-        exit('<h1>500 Internal Server Error</h1>');
-    }
+    /** @var string */
+    private $missingFile;
 
     /**
-     * Write message to error log.
-     *
-     * @param string $message
-     * @return void
+     * MissingFileException constructor.
+     * @param string $missingFile
      */
-    public function log($message)
+    public function __construct($missingFile)
     {
-        error_log($message);
+        $this->missingFile = $missingFile;
+        parent::__construct();
     }
 }
