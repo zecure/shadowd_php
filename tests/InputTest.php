@@ -35,16 +35,16 @@ class InputTest extends \PHPUnit\Framework\TestCase {
         $input = $i->getInput();
 
         $this->assertTrue(array_key_exists('GET|foo', $input));
-        $this->assertEquals($input['GET|foo'], 'bar');
+        $this->assertEquals('bar', $input['GET|foo']);
         $this->assertTrue(array_key_exists('POST|foo', $input));
-        $this->assertEquals($input['POST|foo'], 'bar');
+        $this->assertEquals('bar', $input['POST|foo']);
         $this->assertTrue(array_key_exists('COOKIE|foo', $input));
-        $this->assertEquals($input['COOKIE|foo'], 'bar');
+        $this->assertEquals('bar', $input['COOKIE|foo']);
         $this->assertTrue(array_key_exists('SERVER|HTTP_FOO', $input));
-        $this->assertEquals($input['SERVER|HTTP_FOO'], 'bar');
+        $this->assertEquals('bar', $input['SERVER|HTTP_FOO']);
         $this->assertFalse(array_key_exists('SERVER|foo', $input));
         $this->assertTrue(array_key_exists('FILES|foo', $input));
-        $this->assertEquals($input['FILES|foo'], 'bar');
+        $this->assertEquals('bar', $input['FILES|foo']);
     }
 
     public function testFlatten() {
@@ -59,9 +59,9 @@ class InputTest extends \PHPUnit\Framework\TestCase {
         $flattened = $i->flatten($input);
 
         $this->assertTrue(array_key_exists('foo', $flattened));
-        $this->assertEquals($flattened['foo'], 'bar');
+        $this->assertEquals('bar', $flattened['foo']);
         $this->assertTrue(array_key_exists('boo|quz', $flattened));
-        $this->assertEquals($flattened['boo|quz'], 'qoz');
+        $this->assertEquals('qoz', $flattened['boo|quz']);
     }
 
     public function testDefuseInput() {
@@ -91,50 +91,50 @@ class InputTest extends \PHPUnit\Framework\TestCase {
     public function testEscapeKey() {
         $i = new Input();
 
-        $this->assertEquals($i->escapeKey('foo'), 'foo');
-        $this->assertEquals($i->escapeKey('foo|bar'), 'foo\\|bar');
-        $this->assertEquals($i->escapeKey('foo\\|bar'), 'foo\\\\\\|bar');
-        $this->assertEquals($i->escapeKey('foo||bar'), 'foo\\|\\|bar');
-        $this->assertEquals($i->escapeKey('foo\\\\bar'), 'foo\\\\\\\\bar');
+        $this->assertEquals('foo', $i->escapeKey('foo'));
+        $this->assertEquals('foo\\|bar', $i->escapeKey('foo|bar'));
+        $this->assertEquals('foo\\\\\\|bar', $i->escapeKey('foo\\|bar'));
+        $this->assertEquals('foo\\|\\|bar', $i->escapeKey('foo||bar'));
+        $this->assertEquals('foo\\\\\\\\bar', $i->escapeKey('foo\\\\bar'));
     }
 
     public function testUnescapeKey() {
         $i = new Input();
 
-        $this->assertEquals($i->unescapeKey('foo'), 'foo');
-        $this->assertEquals($i->unescapeKey('foo\\|bar'), 'foo|bar');
-        $this->assertEquals($i->unescapeKey('foo\\\\bar'), 'foo\\bar');
-        $this->assertEquals($i->unescapeKey('foo\\\\\\|bar'), 'foo\\|bar');
+        $this->assertEquals('foo', $i->unescapeKey('foo'));
+        $this->assertEquals('foo|bar', $i->unescapeKey('foo\\|bar'));
+        $this->assertEquals('foo\\bar', $i->unescapeKey('foo\\\\bar'));
+        $this->assertEquals('foo\\|bar', $i->unescapeKey('foo\\\\\\|bar'));
     }
 
     public function testSplitSpath() {
         $i = new Input();
 
         $test1 = $i->splitPath('foo');
-        $this->assertEquals(count($test1), 1);
-        $this->assertEquals($test1[0], 'foo');
+        $this->assertEquals(1, count($test1));
+        $this->assertEquals('foo', $test1[0]);
 
         $test2 = $i->splitPath('foo|bar');
-        $this->assertEquals(count($test2), 2);
-        $this->assertEquals($test2[0], 'foo');
-        $this->assertEquals($test2[1], 'bar');
+        $this->assertEquals(2, count($test2));
+        $this->assertEquals('foo', $test2[0]);
+        $this->assertEquals('bar', $test2[1]);
 
         $test3 = $i->splitPath('foo\\|bar');
-        $this->assertEquals(count($test3), 1);
-        $this->assertEquals($test3[0], 'foo\\|bar');
+        $this->assertEquals(1, count($test3));
+        $this->assertEquals('foo\\|bar', $test3[0]);
 
         $test4 = $i->splitPath('foo\\\\|bar');
-        $this->assertEquals(count($test4), 2);
-        $this->assertEquals($test4[0], 'foo\\\\');
-        $this->assertEquals($test4[1], 'bar');
+        $this->assertEquals(2, count($test4));
+        $this->assertEquals('foo\\\\', $test4[0]);
+        $this->assertEquals('bar', $test4[1]);
 
         $test5 = $i->splitPath('foo\\\\\\|bar');
-        $this->assertEquals(count($test5), 1);
-        $this->assertEquals($test5[0], 'foo\\\\\\|bar');
+        $this->assertEquals(1, count($test5));
+        $this->assertEquals('foo\\\\\\|bar', $test5[0]);
 
         $test6 = $i->splitPath('foo\\');
-        $this->assertEquals(count($test6), 1);
-        $this->assertEquals($test6[0], 'foo\\');
+        $this->assertEquals(1, count($test6));
+        $this->assertEquals('foo\\', $test6[0]);
     }
 
     public function testRemoveIgnoredCaller() {
@@ -208,6 +208,6 @@ class InputTest extends \PHPUnit\Framework\TestCase {
         $hashes = $i->getHashes();
 
         $this->assertTrue(array_key_exists('sha256', $hashes));
-        $this->assertEquals($hashes['sha256'], 'aec070645fe53ee3b3763059376134f058cc337247c978add178b6ccdfb0019f');
+        $this->assertEquals('aec070645fe53ee3b3763059376134f058cc337247c978add178b6ccdfb0019f', $hashes['sha256']);
     }
 }
