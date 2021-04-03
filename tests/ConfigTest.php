@@ -54,5 +54,4 @@ class ConfigTest extends TestCase {
         $this->expectException(MissingConfigEntryException::class);
         $config->get('notfound', true);
     }
-
 }
