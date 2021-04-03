@@ -113,6 +113,7 @@ class Input
         ];
 
         // Strip slashes of GPC input if magic_quotes_gpc is activated to get the real values.
+        /** @phpstan-ignore-next-line */
         if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
             $this->stripslashes($input);
         }
