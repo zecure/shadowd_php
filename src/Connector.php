@@ -18,8 +18,91 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once(__DIR__ . '/../vendor/autoload.php');
+namespace shadowd;
 
-use shadowd\ConnectorHelper;
+class Connector
+{
+    /**
+     * Tie all other classes together.
+     *
+     * @return void
+     */
+    public function start()
+    {
+        try {
+            $output = new Output();
 
-ConnectorHelper::start();
+            [$configFile, $configSection] = $this->getConfigOptions();
+            $config = new Config($configFile, $configSection);
+            $output->setDebug((bool)$config->get('debug'));
+
+            $input = new Input([
+                'clientIpKey' => $config->get('client_ip'),
+                'callerKey'   => $config->get('caller'),
+                'ignoreFile'  => $config->get('ignore'),
+                'rawData'     => $config->get('raw_data')
+            ]);
+
+            $connection = new Connection([
+                'host'    => $config->get('host'),
+                'port'    => $config->get('port'),
+                'profile' => $config->get('profile', true),
+                'key'     => $config->get('key', true),
+                'ssl'     => $config->get('ssl'),
+                'timeout' => $config->get('timeout')
+            ]);
+            $status = $connection->send($input);
+
+            if ($status['attack'] === false || $config->get('observe')) {
+                return;
+            }
+
+            if ($status['critical'] === true) {
+                $output->log(
+                    'stopped critical attack from client: ' . $input->getClientIp(),
+                    Output::LEVEL_DEBUG
+                );
+                $output->error();
+            }
+
+            $output->log(
+                'removed threat from client: ' . $input->getClientIp(),
+                Output::LEVEL_DEBUG
+            );
+
+            if (!$input->defuseInput($status['threats'])) {
+                $output->error();
+            }
+        } catch (\Exception $e) {
+            $output->log(
+                get_class($e) . ': ' . $e->getTraceAsString(),
+                Output::LEVEL_DEBUG
+            );
+
+            // If there is no config or if protection mode is enabled we can't let this request pass.
+            if (!isset($config) || !$config->get('observe')) {
+                $output->error();
+            }
+        }
+    }
+
+    /**
+     * @return array
+     */
+    private function getConfigOptions()
+    {
+        if (getenv('SHADOWD_CONNECTOR_CONFIG')) {
+            $file = getenv('SHADOWD_CONNECTOR_CONFIG');
+        } else {
+            $file = SHADOWD_DEFAULT_CONFIG_FILE;
+        }
+
+        if (getenv('SHADOWD_CONNECTOR_CONFIG_SECTION')) {
+            $section = getenv('SHADOWD_CONNECTOR_CONFIG_SECTION');
+        } else {
+            $section = SHADOWD_DEFAULT_CONFIG_SECTION;
+        }
+
+        return [$file, $section];
+    }
+}
