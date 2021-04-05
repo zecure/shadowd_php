@@ -7,7 +7,6 @@ parameters:
 	excludes_analyse:
 		- %rootDir%/../../../src/autoload.php
 		- %rootDir%/../../../src/ConnectorHelper.php
-		- %rootDir%/../../../src/libs/json.php
 
 	ignoreErrors:
 		- '#Function get_magic_quotes_gpc not found#'
