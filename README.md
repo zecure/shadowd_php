@@ -13,7 +13,7 @@ This component can be used to connect PHP applications with the [background serv
 For the full documentation please refer to [shadowd.zecure.org](https://shadowd.zecure.org/).
 
 # Installation
-The PHP setting [auto_prepend_file](http://php.net/manual/en/ini.core.php#ini.auto-prepend-file) should be used to load *Connector.php* automatically when a PHP script is executed.
-This can be done either globally by editing the *php.ini* or locally by editing the web server configuration and overwriting the setting for single vhosts or directories only.
-
-You also have to create a configuration file. You can copy *misc/examples/connectors.ini* to */etc/shadowd/connectors.ini*. The example configuration is annotated and should be self-explanatory.
+1. If you are not using a prepackaged release you first have to run `composer install`.
+2. You have to create a configuration file at `/etc/shadowd/connectors.ini`. You can find an example configuration at `misc/examples/connectors.ini`. It is annotated and should be self-explanatory.
+3. The PHP setting [auto_prepend_file](http://php.net/manual/en/ini.core.php#ini.auto-prepend-file) should be used to load `src/Connector.php` automatically.
+   It is highly recommended to set `auto_prepend_file` using the capabilities of your web server instead of relying on `php.ini`.
