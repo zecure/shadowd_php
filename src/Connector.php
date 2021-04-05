@@ -87,7 +87,7 @@ class Connector
     }
 
     /**
-     * @return array
+     * @return array<string>
      */
     private function getConfigOptions()
     {
