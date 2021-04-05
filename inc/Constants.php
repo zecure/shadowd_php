@@ -20,6 +20,7 @@
 
 define('SHADOWD_CONNECTOR_VERSION', '2.0.2-php');
 define('SHADOWD_LOG_PREFIX', 'shadowd: ');
+define('SHADOWD_ROOT_DIR', realpath(__DIR__ . '/..'));
 define('SHADOWD_MISC_TESTS', SHADOWD_ROOT_DIR . '/misc/tests/');
 define('SHADOWD_DEFAULT_CONFIG_FILE', '/etc/shadowd/connectors.ini');
 define('SHADOWD_DEFAULT_CONFIG_SECTION', 'shadowd_php');

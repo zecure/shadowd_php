@@ -184,11 +184,9 @@ class Input
                 $output = array_replace($output, $this->flatten($inputValue, $inputKey, $newPath));
             }
         } elseif ($newPath !== false) {
-            if (extension_loaded('mbstring')) {
-                // FIXME: the encoding does not work properly all the time yet.
-                if (!mb_check_encoding($input, 'UTF-8')) {
-                    $input = mb_convert_encoding($input, 'UTF-8');
-                }
+            // FIXME: the encoding does not work properly all the time yet.
+            if (!mb_check_encoding($input, 'UTF-8')) {
+                $input = mb_convert_encoding($input, 'UTF-8');
             }
 
             return [$newPath => $input];

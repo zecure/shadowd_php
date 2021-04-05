@@ -30,9 +30,10 @@ class ConnectorHelper
     public static function start()
     {
         try {
+            $output = new Output();
             [$configFile, $configSection] = self::getConfigOptions();
             $config = new Config($configFile, $configSection);
-            $output = new Output((bool)$config->get('debug'));
+            $output->setDebug((bool)$config->get('debug'));
 
             $input = new Input([
                 'clientIpKey' => $config->get('client_ip'),
@@ -72,20 +73,13 @@ class ConnectorHelper
                 $output->error();
             }
         } catch (\Exception $e) {
-            // Stop if there is no config object.
-            if (!isset($config) || !$config) {
-                $output->log(get_class($e) . ': ' . $e->getTraceAsString());
-                $output->error();
-            }
-
-            // Let PHP handle the log writing if debug is enabled.
             $output->log(
                 get_class($e) . ': ' . $e->getTraceAsString(),
                 Output::LEVEL_DEBUG
             );
 
-            // If protection mode is enabled we can't let this request pass.
-            if (!$config->get('observe')) {
+            // If there is no config or if protection mode is enabled we can't let this request pass.
+            if (!isset($config) || !$config->get('observe')) {
                 $output->error();
             }
         }

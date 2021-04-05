@@ -33,7 +33,19 @@ class Output
      *
      * @param bool $debug
      */
-    public function __construct($debug)
+    public function __construct($debug = true)
+    {
+        $this->debug = $debug;
+    }
+
+    /**
+     * Debug settings come from the config but the output object has to exist in case parsing the config fails.
+     * Thus the debug flag has to be set after initialization.
+     *
+     * @param bool $debug
+     * @return void
+     */
+    public function setDebug($debug)
     {
         $this->debug = $debug;
     }
