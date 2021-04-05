@@ -43,6 +43,7 @@ class Output
      * Thus the debug flag has to be set after initialization.
      *
      * @param bool $debug
+     * @return void
      */
     public function setDebug($debug)
     {
