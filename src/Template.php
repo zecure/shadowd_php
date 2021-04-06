@@ -85,6 +85,8 @@ class Template
     }
 
     /**
+     * Evaluate and print the base template.
+     *
      * @return void
      */
     public function show()
@@ -93,6 +95,8 @@ class Template
     }
 
     /**
+     * Return the title that matches the exception.
+     *
      * @return string
      */
     public function getTitle()
@@ -108,6 +112,8 @@ class Template
     }
 
     /**
+     * Return the file that matches the exception.
+     *
      * @return string
      */
     public function getFile()
@@ -123,6 +129,8 @@ class Template
     }
 
     /**
+     * Evaluate and print the description template that matches the exception.
+     *
      * @return void
      */
     public function printDescription()
@@ -131,6 +139,8 @@ class Template
     }
 
     /**
+     * Is debug mode enabled?
+     *
      * @return bool
      */
     public function isDebug()
@@ -139,6 +149,8 @@ class Template
     }
 
     /**
+     * Is the error message triggered by an exception?
+     *
      * @return bool
      */
     public function isException()
@@ -147,6 +159,8 @@ class Template
     }
 
     /**
+     * Return the exception class.
+     *
      * @return false|string
      */
     public function getExceptionClass()
@@ -155,6 +169,8 @@ class Template
     }
 
     /**
+     * Return the exception message.
+     *
      * @return string
      */
     public function getExceptionMessage()
@@ -163,6 +179,8 @@ class Template
     }
 
     /**
+     * Return the exception stack trace.
+     *
      * @return string
      */
     public function getStackTrace()
