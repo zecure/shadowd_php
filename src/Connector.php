@@ -73,15 +73,15 @@ class Connector
             if (!$input->defuseInput($status['threats'])) {
                 $output->error();
             }
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             $output->log(
-                get_class($e) . ': ' . $e->getTraceAsString(),
+                get_class($exception) . ': ' . $exception->getTraceAsString(),
                 Output::LEVEL_DEBUG
             );
 
             // If there is no config or if protection mode is enabled we can't let this request pass.
             if (!isset($config) || !$config->get('observe')) {
-                $output->error();
+                $output->error($exception);
             }
         }
     }

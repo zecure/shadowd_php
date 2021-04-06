@@ -22,7 +22,10 @@ namespace shadowd;
 
 class Output
 {
+    /** @var int */
     const LEVEL_DEBUG = 1;
+
+    /** @var int */
     const LEVEL_CRITICAL = 2;
 
     /** @var bool */
@@ -53,12 +56,17 @@ class Output
     /**
      * Show a fatal error and stop.
      *
+     * @param \Exception|null $exception
      * @return void
      */
-    public function error()
+    public function error($exception = null)
     {
         header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-        exit('<h1>500 Internal Server Error</h1>');
+
+        $template = new Template($exception, $this->debug);
+        $template->show();
+
+        exit(1);
     }
 
     /**
