@@ -41,11 +41,11 @@ class Connection
     public function __construct($options)
     {
         if (empty($options['profile'])) {
-            throw new InvalidProfileException('empty');
+            throw new InvalidProfileException('Profile is empty');
         } elseif (!preg_match('/^[\d]*?$/', $options['profile'])) {
-            throw new InvalidProfileException('not integer');
+            throw new InvalidProfileException('Profile is not an integer');
         } elseif ((int)$options['profile'] === 0) {
-            throw new InvalidProfileException('zero');
+            throw new InvalidProfileException('Profile is zero');
         }
 
         if (!isset($options['host']) || (!$options['host'])) {

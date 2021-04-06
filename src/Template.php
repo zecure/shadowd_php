@@ -20,7 +20,16 @@
 
 namespace shadowd;
 
+use shadowd\Exceptions\BadJsonException;
+use shadowd\Exceptions\BadRequestException;
+use shadowd\Exceptions\BadSignatureException;
+use shadowd\Exceptions\CorruptedFileException;
+use shadowd\Exceptions\FailedConnectionException;
+use shadowd\Exceptions\InvalidProfileException;
+use shadowd\Exceptions\MissingConfigEntryException;
 use shadowd\Exceptions\MissingFileException;
+use shadowd\Exceptions\ProcessingException;
+use shadowd\Exceptions\UnknownPathException;
 
 class Template
 {
@@ -29,14 +38,32 @@ class Template
 
     /** @var array<string, string> */
     const TITLES = [
-        self::DEFAULT_KEY           => 'Request Blocked',
-        MissingFileException::class => 'Missing File'
+        self::DEFAULT_KEY                  => 'Request Blocked',
+        BadJsonException::class            => 'Bad JSON',
+        BadRequestException::class         => 'Bad Request',
+        BadSignatureException::class       => 'Bad Signature',
+        CorruptedFileException::class      => 'Corrupted File',
+        FailedConnectionException::class   => 'Failed Connection',
+        InvalidProfileException::class     => 'Invalid Profile',
+        MissingConfigEntryException::class => 'Missing Config Entry',
+        MissingFileException::class        => 'Missing File',
+        ProcessingException::class         => 'Processing Error',
+        UnknownPathException::class        => 'Unknown Path'
     ];
 
     /** @var array<string, string> */
     const FILES = [
-        self::DEFAULT_KEY           => 'blocked.html.php',
-        MissingFileException::class => 'missing_file.html.php'
+        self::DEFAULT_KEY                  => 'blocked.html.php',
+        BadJsonException::class            => 'bad_json.html.php',
+        BadRequestException::class         => 'bad_request.html.php',
+        BadSignatureException::class       => 'bad_signature.html.php',
+        CorruptedFileException::class      => 'corrupted_file.html.php',
+        FailedConnectionException::class   => 'failed_connection.html.php',
+        InvalidProfileException::class     => 'invalid_profile.html.php',
+        MissingConfigEntryException::class => 'missing_config_entry.html.php',
+        MissingFileException::class        => 'missing_file.html.php',
+        ProcessingException::class         => 'processing.html.php',
+        UnknownPathException::class        => 'unknown_path.html.php'
     ];
 
     /** @var \Exception|null */

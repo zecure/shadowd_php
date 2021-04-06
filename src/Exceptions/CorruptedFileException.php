@@ -32,6 +32,6 @@ class CorruptedFileException extends \Exception
     public function __construct($corruptedFile)
     {
         $this->corruptedFile = $corruptedFile;
-        parent::__construct();
+        parent::__construct('File ' . $corruptedFile . ' is corrupted');
     }
 }
