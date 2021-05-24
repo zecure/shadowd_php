@@ -22,6 +22,10 @@ namespace shadowd\Exceptions;
 
 class BadRequestException extends \Exception
 {
+    /**
+     * BadRequestException constructor.
+     * @param string|null $message
+     */
     public function __construct($message = null)
     {
         parent::__construct($message);
