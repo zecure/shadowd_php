@@ -59,16 +59,17 @@ class Config
      *
      * @param string $key
      * @param bool $required
+     * @param mixed $default
      * @return string|bool
      * @throws MissingConfigEntryException if value required but missing
      */
-    public function get($key, $required = false)
+    public function get($key, $required = false, $default = false)
     {
         if (!isset($this->data[$this->section][$key])) {
             if ($required) {
                 throw new MissingConfigEntryException($key);
             } else {
-                return false;
+                return $default;
             }
         } else {
             return $this->data[$this->section][$key];

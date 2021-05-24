@@ -34,7 +34,8 @@ class Connector
 
             [$configFile, $configSection] = $this->getConfigOptions();
             $config = new Config($configFile, $configSection);
-            $output->setDebug((bool)$config->get('debug'));
+            $output->setShowDebug((bool)$config->get('debug'));
+            $output->setShowTemplates((bool)$config->get('templates', false, true));
 
             $input = new Input([
                 'clientIpKey' => $config->get('client_ip'),
