@@ -18,11 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace shadowd;
+use shadowd\Input;
+use PHPUnit\Framework\TestCase;
 
-define('__MISC__', realpath(dirname(__FILE__)) . '/../misc/tests/');
-
-class InputTest extends \PHPUnit_Framework_TestCase {
+class InputTest extends TestCase {
     public function testGetInput() {
         $_GET['foo'] = 'bar';
         $_POST['foo'] = 'bar';
@@ -31,37 +30,37 @@ class InputTest extends \PHPUnit_Framework_TestCase {
         $_SERVER['foo'] = 'bar';
         $_FILES['foo']['name'] = 'bar';
 
-        $i = new Input();
+        $i = new Input([]);
         $input = $i->getInput();
 
         $this->assertTrue(array_key_exists('GET|foo', $input));
-        $this->assertEquals($input['GET|foo'], 'bar');
+        $this->assertEquals('bar', $input['GET|foo']);
         $this->assertTrue(array_key_exists('POST|foo', $input));
-        $this->assertEquals($input['POST|foo'], 'bar');
+        $this->assertEquals('bar', $input['POST|foo']);
         $this->assertTrue(array_key_exists('COOKIE|foo', $input));
-        $this->assertEquals($input['COOKIE|foo'], 'bar');
+        $this->assertEquals('bar', $input['COOKIE|foo']);
         $this->assertTrue(array_key_exists('SERVER|HTTP_FOO', $input));
-        $this->assertEquals($input['SERVER|HTTP_FOO'], 'bar');
+        $this->assertEquals('bar', $input['SERVER|HTTP_FOO']);
         $this->assertFalse(array_key_exists('SERVER|foo', $input));
         $this->assertTrue(array_key_exists('FILES|foo', $input));
-        $this->assertEquals($input['FILES|foo'], 'bar');
+        $this->assertEquals('bar', $input['FILES|foo']);
     }
 
     public function testFlatten() {
-        $input = array(
+        $input = [
             'foo' => 'bar',
-            'boo' => array(
+            'boo' => [
                 'quz' => 'qoz'
-            )
-        );
+            ]
+        ];
 
-        $i = new Input();
+        $i = new Input([]);
         $flattened = $i->flatten($input);
 
         $this->assertTrue(array_key_exists('foo', $flattened));
-        $this->assertEquals($flattened['foo'], 'bar');
+        $this->assertEquals('bar', $flattened['foo']);
         $this->assertTrue(array_key_exists('boo|quz', $flattened));
-        $this->assertEquals($flattened['boo|quz'], 'qoz');
+        $this->assertEquals('qoz', $flattened['boo|quz']);
     }
 
     public function testDefuseInput() {
@@ -71,14 +70,14 @@ class InputTest extends \PHPUnit_Framework_TestCase {
         $_SERVER['HTTP_FOO'] = 'bar';
         $_FILES['foo']['name'] = 'bar';
 
-        $i = new Input();
-        $this->assertTrue($i->defuseInput(array(
+        $i = new Input([]);
+        $this->assertTrue($i->defuseInput([
             'GET|foo',
             'POST|foo',
             'COOKIE|foo',
             'SERVER|HTTP_FOO',
             'FILES|foo'
-        )));
+        ]));
 
         $this->assertArrayNotHasKey('foo', $_GET);
         $this->assertArrayNotHasKey('foo', $_POST);
@@ -89,62 +88,62 @@ class InputTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testEscapeKey() {
-        $i = new Input();
+        $i = new Input([]);
 
-        $this->assertEquals($i->escapeKey('foo'), 'foo');
-        $this->assertEquals($i->escapeKey('foo|bar'), 'foo\\|bar');
-        $this->assertEquals($i->escapeKey('foo\\|bar'), 'foo\\\\\\|bar');
-        $this->assertEquals($i->escapeKey('foo||bar'), 'foo\\|\\|bar');
-        $this->assertEquals($i->escapeKey('foo\\\\bar'), 'foo\\\\\\\\bar');
+        $this->assertEquals('foo', $i->escapeKey('foo'));
+        $this->assertEquals('foo\\|bar', $i->escapeKey('foo|bar'));
+        $this->assertEquals('foo\\\\\\|bar', $i->escapeKey('foo\\|bar'));
+        $this->assertEquals('foo\\|\\|bar', $i->escapeKey('foo||bar'));
+        $this->assertEquals('foo\\\\\\\\bar', $i->escapeKey('foo\\\\bar'));
     }
 
     public function testUnescapeKey() {
-        $i = new Input();
+        $i = new Input([]);
 
-        $this->assertEquals($i->unescapeKey('foo'), 'foo');
-        $this->assertEquals($i->unescapeKey('foo\\|bar'), 'foo|bar');
-        $this->assertEquals($i->unescapeKey('foo\\\\bar'), 'foo\\bar');
-        $this->assertEquals($i->unescapeKey('foo\\\\\\|bar'), 'foo\\|bar');
+        $this->assertEquals('foo', $i->unescapeKey('foo'));
+        $this->assertEquals('foo|bar', $i->unescapeKey('foo\\|bar'));
+        $this->assertEquals('foo\\bar', $i->unescapeKey('foo\\\\bar'));
+        $this->assertEquals('foo\\|bar', $i->unescapeKey('foo\\\\\\|bar'));
     }
 
     public function testSplitSpath() {
-        $i = new Input();
+        $i = new Input([]);
 
         $test1 = $i->splitPath('foo');
-        $this->assertEquals(count($test1), 1);
-        $this->assertEquals($test1[0], 'foo');
+        $this->assertEquals(1, count($test1));
+        $this->assertEquals('foo', $test1[0]);
 
         $test2 = $i->splitPath('foo|bar');
-        $this->assertEquals(count($test2), 2);
-        $this->assertEquals($test2[0], 'foo');
-        $this->assertEquals($test2[1], 'bar');
+        $this->assertEquals(2, count($test2));
+        $this->assertEquals('foo', $test2[0]);
+        $this->assertEquals('bar', $test2[1]);
 
         $test3 = $i->splitPath('foo\\|bar');
-        $this->assertEquals(count($test3), 1);
-        $this->assertEquals($test3[0], 'foo\\|bar');
+        $this->assertEquals(1, count($test3));
+        $this->assertEquals('foo\\|bar', $test3[0]);
 
         $test4 = $i->splitPath('foo\\\\|bar');
-        $this->assertEquals(count($test4), 2);
-        $this->assertEquals($test4[0], 'foo\\\\');
-        $this->assertEquals($test4[1], 'bar');
+        $this->assertEquals(2, count($test4));
+        $this->assertEquals('foo\\\\', $test4[0]);
+        $this->assertEquals('bar', $test4[1]);
 
         $test5 = $i->splitPath('foo\\\\\\|bar');
-        $this->assertEquals(count($test5), 1);
-        $this->assertEquals($test5[0], 'foo\\\\\\|bar');
+        $this->assertEquals(1, count($test5));
+        $this->assertEquals('foo\\\\\\|bar', $test5[0]);
 
         $test6 = $i->splitPath('foo\\');
-        $this->assertEquals(count($test6), 1);
-        $this->assertEquals($test6[0], 'foo\\');
+        $this->assertEquals(1, count($test6));
+        $this->assertEquals('foo\\', $test6[0]);
     }
 
     public function testRemoveIgnoredCaller() {
-        $i = new Input(array(
+        $i = new Input([
             'callerKey'  => 'shadowd_caller',
-            'ignoreFile' => __MISC__ . 'ignore1.json'
-        ));
-        $input = array(
+            'ignoreFile' => SHADOWD_MISC_TESTS . 'ignore1.json'
+        ]);
+        $input = [
             'GET|bar' => 'foobar'
-        );
+        ];
 
         $_SERVER['shadowd_caller'] = 'foo';
         $output = $i->removeIgnored($input);
@@ -156,58 +155,58 @@ class InputTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testRemoveIgnoredPath() {
-        $i = new Input(array(
-            'ignoreFile' => __MISC__ . 'ignore2.json'
-        ));
+        $i = new Input([
+            'ignoreFile' => SHADOWD_MISC_TESTS . 'ignore2.json'
+        ]);
 
-        $input = array(
+        $input = [
             'GET|bar' => 'foobar'
-        );
+        ];
         $output = $i->removeIgnored($input);
         $this->assertArrayNotHasKey('GET|bar', $output);
 
-        $input = array(
+        $input = [
             'GET|boo' => 'foobar'
-        );
+        ];
         $output = $i->removeIgnored($input);
         $this->assertArrayHasKey('GET|boo', $output);
     }
 
     public function testRemoveIgnoredCallerPath() {
-        $i = new Input(array(
+        $i = new Input([
             'callerKey'  => 'shadowd_caller',
-            'ignoreFile' => __MISC__ . 'ignore3.json'
-        ));
+            'ignoreFile' => SHADOWD_MISC_TESTS . 'ignore3.json'
+        ]);
 
         $_SERVER['shadowd_caller'] = 'foo';
-        $input = array(
+        $input = [
             'GET|bar' => 'foobar'
-        );
+        ];
         $output = $i->removeIgnored($input);
         $this->assertArrayNotHasKey('GET|bar', $output);
 
         $_SERVER['shadowd_caller'] = 'foo';
-        $input = array(
+        $input = [
             'GET|boo' => 'foobar'
-        );
+        ];
         $output = $i->removeIgnored($input);
         $this->assertArrayHasKey('GET|boo', $output);
 
         $_SERVER['shadowd_caller'] = 'boo';
-        $input = array(
+        $input = [
             'GET|bar' => 'foobar'
-        );
+        ];
         $output = $i->removeIgnored($input);
         $this->assertArrayHasKey('GET|bar', $output);
     }
 
     public function testGetHashes() {
-        $_SERVER['SCRIPT_FILENAME'] = __MISC__ . 'hashes';
+        $_SERVER['SCRIPT_FILENAME'] = SHADOWD_MISC_TESTS . 'hashes';
 
-        $i = new Input();
+        $i = new Input([]);
         $hashes = $i->getHashes();
 
         $this->assertTrue(array_key_exists('sha256', $hashes));
-        $this->assertEquals($hashes['sha256'], 'aec070645fe53ee3b3763059376134f058cc337247c978add178b6ccdfb0019f');
+        $this->assertEquals('aec070645fe53ee3b3763059376134f058cc337247c978add178b6ccdfb0019f', $hashes['sha256']);
     }
 }

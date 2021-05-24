@@ -1,0 +1,12 @@
+parameters:
+	reportUnmatchedIgnoredErrors: false
+
+	bootstrapFiles:
+		- %rootDir%/../../../vendor/autoload.php
+
+	excludes_analyse:
+		- %rootDir%/../../../src/autoload.php
+		- %rootDir%/../../../src/ConnectorHelper.php
+
+	ignoreErrors:
+		- '#Function get_magic_quotes_gpc not found#'

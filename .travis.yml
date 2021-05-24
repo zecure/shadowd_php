@@ -1,10 +1,15 @@
 language: php
 
 php:
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
+  - 7.2
+  - 7.3
+  - 8.0
+
+before_script:
+  - composer self-update
+  - composer install
 
 script:
-  - phpunit tests
+  - php vendor/bin/phpcs --standard=PSR2 --ignore="autoload.php,Connector.php,libs/*" src
+  - php vendor/bin/phpstan analyse -c .phpstan.neon -l 6 src
+  - php vendor/bin/phpunit tests

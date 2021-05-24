@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2016 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2021 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -20,79 +20,90 @@
 
 namespace shadowd;
 
-require_once(realpath(dirname(__FILE__)) . '/autoload.php');
-
 class Connector
 {
-    /* Tie all other classes together. */
-    public static function start()
+    /**
+     * Tie all other classes together.
+     *
+     * @return void
+     */
+    public function start()
     {
         try {
-            $config = new Config();
+            $output = new Output();
 
-            $input = new Input(array(
+            [$configFile, $configSection] = $this->getConfigOptions();
+            $config = new Config($configFile, $configSection);
+            $output->setShowDebug((bool)$config->get('debug'));
+            $output->setShowTemplates((bool)$config->get('templates', false, true));
+
+            $input = new Input([
                 'clientIpKey' => $config->get('client_ip'),
                 'callerKey'   => $config->get('caller'),
                 'ignoreFile'  => $config->get('ignore'),
                 'rawData'     => $config->get('raw_data')
-            ));
+            ]);
 
-            $output = new Output();
-
-            /* Establish a connection with shadowd and send the user input. */
-            $connection = new Connection(array(
+            $connection = new Connection([
                 'host'    => $config->get('host'),
                 'port'    => $config->get('port'),
                 'profile' => $config->get('profile', true),
                 'key'     => $config->get('key', true),
-                'ssl'     => $config->get('ssl')
-            ));
-
+                'ssl'     => $config->get('ssl'),
+                'timeout' => $config->get('timeout')
+            ]);
             $status = $connection->send($input);
 
-            /* If observe mode is disabled eliminate the threats. */
-            if (!$config->get('observe') && ($status['attack'] === true)) {
-                if ($status['critical'] === true) {
-                    if ($config->get('debug')) {
-                        $output->log(
-                            'shadowd: stopped critical attack from client: '
-                            . $input->getClientIp()
-                        );
-                    }
-
-                    return $output->error();
-                }
-
-                if (!$input->defuseInput($status['threats'])) {
-                    if ($config->get('debug')) {
-                        $output->log(
-                            'shadowd: stopped attack from client: '
-                            . $input->getClientIp()
-                        );
-                    }
-
-                    return $output->error();
-                }
-
-                if ($config->get('debug')) {
-                    $output->log(
-                        'shadowd: removed threat from client: '
-                        . $input->getClientIp()
-                    );
-                }
-            }
-        } catch (\Exception $e) {
-            /* Let PHP handle the log writing if debug is enabled. */
-            if ($config->get('debug')) {
-                $output->log('shadowd: ' . rtrim($e->getMessage()));
+            if ($status['attack'] === false || $config->get('observe')) {
+                return;
             }
 
-            /* If protection mode is enabled we can't let this request pass. */
-            if (!$config->get('observe')) {
-                return $output->error();
+            if ($status['critical'] === true) {
+                $output->log(
+                    'stopped critical attack from client: ' . $input->getClientIp(),
+                    Output::LEVEL_DEBUG
+                );
+                $output->error();
+            }
+
+            $output->log(
+                'removed threat from client: ' . $input->getClientIp(),
+                Output::LEVEL_DEBUG
+            );
+
+            if (!$input->defuseInput($status['threats'])) {
+                $output->error();
+            }
+        } catch (\Exception $exception) {
+            $output->log(
+                get_class($exception) . ': ' . $exception->getTraceAsString(),
+                Output::LEVEL_DEBUG
+            );
+
+            // If there is no config or if protection mode is enabled we can't let this request pass.
+            if (!isset($config) || !$config->get('observe')) {
+                $output->error($exception);
             }
         }
     }
-}
 
-Connector::start();
+    /**
+     * @return array<string>
+     */
+    private function getConfigOptions()
+    {
+        if (getenv('SHADOWD_CONNECTOR_CONFIG')) {
+            $file = getenv('SHADOWD_CONNECTOR_CONFIG');
+        } else {
+            $file = SHADOWD_DEFAULT_CONFIG_FILE;
+        }
+
+        if (getenv('SHADOWD_CONNECTOR_CONFIG_SECTION')) {
+            $section = getenv('SHADOWD_CONNECTOR_CONFIG_SECTION');
+        } else {
+            $section = SHADOWD_DEFAULT_CONFIG_SECTION;
+        }
+
+        return [$file, $section];
+    }
+}
