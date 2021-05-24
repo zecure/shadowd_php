@@ -32,6 +32,6 @@ class MissingConfigEntryException extends \Exception
     public function __construct($key)
     {
         $this->key = $key;
-        parent::__construct();
+        parent::__construct('Entry ' . $key . ' is missing');
     }
 }

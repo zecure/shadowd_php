@@ -41,11 +41,9 @@ class Connection
     public function __construct($options)
     {
         if (empty($options['profile'])) {
-            throw new InvalidProfileException('empty');
+            throw new InvalidProfileException('Profile is empty or null');
         } elseif (!preg_match('/^[\d]*?$/', $options['profile'])) {
-            throw new InvalidProfileException('not integer');
-        } elseif ((int)$options['profile'] === 0) {
-            throw new InvalidProfileException('zero');
+            throw new InvalidProfileException('Profile is not an integer');
         }
 
         if (!isset($options['host']) || (!$options['host'])) {
@@ -177,7 +175,7 @@ class Connection
                     'attack' => false
                 ];
             case SHADOWD_STATUS_BAD_REQUEST:
-                throw new BadRequestException();
+                throw new BadRequestException(isset($json['message']) ? $json['message'] : null);
             case SHADOWD_STATUS_BAD_SIGNATURE:
                 throw new BadSignatureException();
             case SHADOWD_STATUS_BAD_JSON:

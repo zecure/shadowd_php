@@ -1,0 +1,2 @@
+<p>Your request was classified as dangerous by the <a href="https://shadowd.zecure.org">Shadow Daemon</a> web application firewall.</p>
+<p>To prevent harm it was blocked. If you think this is an error please contact your administrator.</p>

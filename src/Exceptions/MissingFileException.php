@@ -32,6 +32,6 @@ class MissingFileException extends \Exception
     public function __construct($missingFile)
     {
         $this->missingFile = $missingFile;
-        parent::__construct();
+        parent::__construct('File ' . $missingFile . ' is missing');
     }
 }
