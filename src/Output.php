@@ -55,7 +55,7 @@ class Output
      * @param bool $showDebug
      * @return void
      */
-    public function setDebug($showDebug)
+    public function setShowDebug($showDebug)
     {
         $this->showDebug = $showDebug;
     }
@@ -66,7 +66,7 @@ class Output
      * @param bool $showTemplates
      * @return void
      */
-    public function setTemplate($showTemplates)
+    public function setShowTemplates($showTemplates)
     {
         $this->showTemplates = $showTemplates;
     }
