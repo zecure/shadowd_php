@@ -175,7 +175,7 @@ class Connection
                     'attack' => false
                 ];
             case SHADOWD_STATUS_BAD_REQUEST:
-                throw new BadRequestException();
+                throw new BadRequestException(isset($json['message']) ? $json['message'] : null);
             case SHADOWD_STATUS_BAD_SIGNATURE:
                 throw new BadSignatureException();
             case SHADOWD_STATUS_BAD_JSON:
