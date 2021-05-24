@@ -29,28 +29,46 @@ class Output
     const LEVEL_CRITICAL = 2;
 
     /** @var bool */
-    private $debug;
+    private $showDebug;
+
+    /** @var bool */
+    private $showTemplates;
 
     /**
      * Output constructor.
      *
-     * @param bool $debug
+     * Settings come from the config but the output object has to exist in case parsing the config fails.
+     * Thus the settings have to be set after initialization through setters.
+     *
+     * @param bool $showDebug
+     * @param bool $showTemplates
      */
-    public function __construct($debug = true)
+    public function __construct($showDebug = false, $showTemplates = true)
     {
-        $this->debug = $debug;
+        $this->showDebug = $showDebug;
+        $this->showTemplates = $showTemplates;
     }
 
     /**
-     * Debug settings come from the config but the output object has to exist in case parsing the config fails.
-     * Thus the debug flag has to be set after initialization.
+     * Set debug flag to show additional information and store logs.
      *
-     * @param bool $debug
+     * @param bool $showDebug
      * @return void
      */
-    public function setDebug($debug)
+    public function setDebug($showDebug)
     {
-        $this->debug = $debug;
+        $this->showDebug = $showDebug;
+    }
+
+    /**
+     * Set template flag to show a template instead of generic error in case of a problem.
+     *
+     * @param bool $showTemplates
+     * @return void
+     */
+    public function setTemplate($showTemplates)
+    {
+        $this->showTemplates = $showTemplates;
     }
 
     /**
@@ -63,8 +81,12 @@ class Output
     {
         header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
 
-        $template = new Template($exception, $this->debug);
-        $template->show();
+        if ($this->showTemplates) {
+            $template = new Template($exception, $this->showDebug);
+            $template->show();
+        } else {
+            echo '<h1>500 Internal Server Error</h1>';
+        }
 
         exit(1);
     }
@@ -78,7 +100,7 @@ class Output
      */
     public function log($message, $level = self::LEVEL_CRITICAL)
     {
-        if ($this->debug !== true && $level === self::LEVEL_DEBUG) {
+        if ($this->showDebug !== true && $level === self::LEVEL_DEBUG) {
             return;
         }
         error_log(SHADOWD_LOG_PREFIX . $message);
