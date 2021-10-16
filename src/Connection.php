@@ -46,19 +46,19 @@ class Connection
             throw new InvalidProfileException('Profile is not an integer');
         }
 
-        if (!isset($options['host']) || (!$options['host'])) {
+        if (empty($options['host'])) {
             $options['host'] = '127.0.0.1';
         }
 
-        if (!isset($options['port']) || (!$options['port'])) {
+        if (empty($options['port'])) {
             $options['port'] = '9115';
         }
 
-        if (!isset($options['ssl'])) {
+        if (empty($options['ssl'])) {
             $options['ssl'] = false;
         }
 
-        if (!isset($options['timeout'])) {
+        if (empty($options['timeout'])) {
             $options['timeout'] = 5;
         }
 

@@ -36,19 +36,19 @@ class Input
      */
     public function __construct($options)
     {
-        if (!isset($options['clientIpKey']) || !$options['clientIpKey']) {
+        if (empty($options['clientIpKey'])) {
             $options['clientIpKey'] = 'REMOTE_ADDR';
         }
 
-        if (!isset($options['callerKey']) || !$options['callerKey']) {
+        if (empty($options['callerKey'])) {
             $options['callerKey'] = 'SCRIPT_FILENAME';
         }
 
-        if (!isset($options['ignoreFile'])) {
+        if (empty($options['ignoreFile'])) {
             $options['ignoreFile'] = false;
         }
 
-        if (!isset($options['rawData'])) {
+        if (empty($options['rawData'])) {
             $options['rawData'] = false;
         }
 
