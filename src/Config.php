@@ -65,14 +65,14 @@ class Config
      */
     public function get($key, $required = false, $default = false)
     {
-        if (!isset($this->data[$this->section][$key])) {
-            if ($required) {
-                throw new MissingConfigEntryException($key);
-            } else {
-                return $default;
-            }
-        } else {
+        if (isset($this->data[$this->section][$key])) {
             return $this->data[$this->section][$key];
+        }
+
+        if ($required) {
+            throw new MissingConfigEntryException($key);
+        } else {
+            return $default;
         }
     }
 }
