@@ -46,22 +46,6 @@ class Connection
             throw new InvalidProfileException('Profile is not an integer');
         }
 
-        if (empty($options['host'])) {
-            $options['host'] = '127.0.0.1';
-        }
-
-        if (empty($options['port'])) {
-            $options['port'] = '9115';
-        }
-
-        if (empty($options['ssl'])) {
-            $options['ssl'] = false;
-        }
-
-        if (empty($options['timeout'])) {
-            $options['timeout'] = 5;
-        }
-
         $this->options = $options;
     }
 

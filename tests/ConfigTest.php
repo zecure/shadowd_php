@@ -48,6 +48,17 @@ class ConfigTest extends TestCase {
         $this->assertEquals('1', $requiredValue);
     }
 
+    public function testEnvGet() {
+        $config = new Config(SHADOWD_MISC_TESTS . '/connectors_valid.ini', 'shadowd_php');
+
+        $optionalValue1 = $config->get('foo');
+        $this->assertFalse($optionalValue1);
+
+        putenv(SHADOWD_CONFIG_ENV_PREFIX . 'FOO=1');
+        $optionalValue2 = $config->get('foo');
+        $this->assertEquals('1', $optionalValue2);
+    }
+
     public function testGetMissingEntry() {
         $config = new Config(SHADOWD_MISC_TESTS . '/connectors_valid.ini', '');
 

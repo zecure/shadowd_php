@@ -36,22 +36,6 @@ class Input
      */
     public function __construct($options)
     {
-        if (empty($options['clientIpKey'])) {
-            $options['clientIpKey'] = 'REMOTE_ADDR';
-        }
-
-        if (empty($options['callerKey'])) {
-            $options['callerKey'] = 'SCRIPT_FILENAME';
-        }
-
-        if (empty($options['ignoreFile'])) {
-            $options['ignoreFile'] = false;
-        }
-
-        if (empty($options['rawData'])) {
-            $options['rawData'] = false;
-        }
-
         $this->options = $options;
     }
 
@@ -132,7 +116,7 @@ class Input
         $input['SERVER']['PHP_SELF'] = $_SERVER['PHP_SELF'];
 
         // Add raw post data if not empty.
-        if ($this->options['rawData']) {
+        if (!empty($this->options['rawData'])) {
             $rawData = file_get_contents('php://input');
 
             if ($rawData) {
@@ -144,7 +128,7 @@ class Input
         $flattenedInput = $this->flatten($input);
 
         // Remove user input that should be ignored.
-        if ($this->options['ignoreFile']) {
+        if (!empty($this->options['ignoreFile'])) {
             $flattenedInput = $this->removeIgnored($flattenedInput);
         }
 
