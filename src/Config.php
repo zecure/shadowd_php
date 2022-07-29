@@ -26,8 +26,6 @@ use shadowd\Exceptions\MissingFileException;
 
 class Config
 {
-    const ENV_PREFIX = 'SHADOWD_CONNECTOR_CONFIG_';
-
     /** @var string */
     private $section;
 
@@ -67,7 +65,7 @@ class Config
      */
     public function get($key, $required = false, $default = false)
     {
-        $envKey = self::ENV_PREFIX . strtoupper($key);
+        $envKey = SHADOWD_CONFIG_ENV_PREFIX . strtoupper($key);
         if (!empty($_ENV[$envKey])) {
             return $_ENV[$envKey];
         }

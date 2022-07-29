@@ -24,6 +24,7 @@ define('SHADOWD_ROOT_DIR', realpath(__DIR__ . '/..'));
 define('SHADOWD_MISC_TESTS', SHADOWD_ROOT_DIR . '/misc/tests/');
 define('SHADOWD_DEFAULT_CONFIG_FILE', '/etc/shadowd/connectors.ini');
 define('SHADOWD_DEFAULT_CONFIG_SECTION', 'shadowd_php');
+define('SHADOWD_CONFIG_ENV_PREFIX', 'SHADOWD_CONNECTOR_CONFIG_');
 define('SHADOWD_STATUS_OK', '1');
 define('SHADOWD_STATUS_BAD_REQUEST', '2');
 define('SHADOWD_STATUS_BAD_SIGNATURE', '3');

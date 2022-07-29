@@ -54,7 +54,7 @@ class ConfigTest extends TestCase {
         $optionalValue1 = $config->get('foo');
         $this->assertFalse($optionalValue1);
 
-        $_ENV[Config::ENV_PREFIX . 'FOO'] = '1';
+        $_ENV[SHADOWD_CONFIG_ENV_PREFIX . 'FOO'] = '1';
         $optionalValue2 = $config->get('foo');
         $this->assertEquals('1', $optionalValue2);
     }
