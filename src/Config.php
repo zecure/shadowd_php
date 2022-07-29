@@ -66,8 +66,8 @@ class Config
     public function get($key, $required = false, $default = false)
     {
         $envKey = SHADOWD_CONFIG_ENV_PREFIX . strtoupper($key);
-        if (!empty($_ENV[$envKey])) {
-            return $_ENV[$envKey];
+        if (getenv($envKey) !== false) {
+            return getenv($envKey);
         }
 
         if (isset($this->data[$this->section][$key])) {
