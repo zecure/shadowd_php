@@ -116,7 +116,7 @@ class Input
         $input['SERVER']['PHP_SELF'] = $_SERVER['PHP_SELF'];
 
         // Add raw post data if not empty.
-        if ($this->options['rawData']) {
+        if (!empty($this->options['rawData'])) {
             $rawData = file_get_contents('php://input');
 
             if ($rawData) {
@@ -128,7 +128,7 @@ class Input
         $flattenedInput = $this->flatten($input);
 
         // Remove user input that should be ignored.
-        if ($this->options['ignoreFile']) {
+        if (!empty($this->options['ignoreFile'])) {
             $flattenedInput = $this->removeIgnored($flattenedInput);
         }
 
