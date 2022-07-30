@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2021 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2022 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -44,22 +44,6 @@ class Connection
             throw new InvalidProfileException('Profile is empty or null');
         } elseif (!preg_match('/^[\d]*?$/', $options['profile'])) {
             throw new InvalidProfileException('Profile is not an integer');
-        }
-
-        if (empty($options['host'])) {
-            $options['host'] = '127.0.0.1';
-        }
-
-        if (empty($options['port'])) {
-            $options['port'] = '9115';
-        }
-
-        if (empty($options['ssl'])) {
-            $options['ssl'] = false;
-        }
-
-        if (empty($options['timeout'])) {
-            $options['timeout'] = 5;
         }
 
         $this->options = $options;

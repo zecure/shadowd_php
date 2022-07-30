@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2021 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2022 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -38,19 +38,19 @@ class Connector
             $output->setShowTemplates((bool)$config->get('templates', false, true));
 
             $input = new Input([
-                'clientIpKey' => $config->get('client_ip'),
-                'callerKey'   => $config->get('caller'),
-                'ignoreFile'  => $config->get('ignore'),
-                'rawData'     => $config->get('raw_data')
+                'clientIpKey' => $config->get('client_ip', false, 'REMOTE_ADDR'),
+                'callerKey'   => $config->get('caller', false, 'SCRIPT_FILENAME'),
+                'ignoreFile'  => $config->get('ignore', false, false),
+                'rawData'     => $config->get('raw_data', false, false)
             ]);
 
             $connection = new Connection([
-                'host'    => $config->get('host'),
-                'port'    => $config->get('port'),
+                'host'    => $config->get('host', false, '127.0.0.1'),
+                'port'    => $config->get('port', false, '9115'),
                 'profile' => $config->get('profile', true),
                 'key'     => $config->get('key', true),
-                'ssl'     => $config->get('ssl'),
-                'timeout' => $config->get('timeout')
+                'ssl'     => $config->get('ssl', false, false),
+                'timeout' => $config->get('timeout', false, 5)
             ]);
             $status = $connection->send($input);
 

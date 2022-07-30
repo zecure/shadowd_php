@@ -3,7 +3,7 @@
 /**
  * Shadow Daemon -- Web Application Firewall
  *
- *   Copyright (C) 2014-2021 Hendrik Buchwald <hb@zecure.org>
+ *   Copyright (C) 2014-2022 Hendrik Buchwald <hb@zecure.org>
  *
  * This file is part of Shadow Daemon. Shadow Daemon is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -65,14 +65,19 @@ class Config
      */
     public function get($key, $required = false, $default = false)
     {
-        if (!isset($this->data[$this->section][$key])) {
-            if ($required) {
-                throw new MissingConfigEntryException($key);
-            } else {
-                return $default;
-            }
-        } else {
+        $envKey = SHADOWD_CONFIG_ENV_PREFIX . strtoupper($key);
+        if (getenv($envKey) !== false) {
+            return getenv($envKey);
+        }
+
+        if (isset($this->data[$this->section][$key])) {
             return $this->data[$this->section][$key];
+        }
+
+        if ($required) {
+            throw new MissingConfigEntryException($key);
+        } else {
+            return $default;
         }
     }
 }
