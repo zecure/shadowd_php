@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define('SHADOWD_CONNECTOR_VERSION', '2.1.1-php');
+define('SHADOWD_CONNECTOR_VERSION', '2.2.0-php');
 define('SHADOWD_LOG_PREFIX', 'shadowd: ');
 define('SHADOWD_ROOT_DIR', realpath(__DIR__ . '/..'));
 define('SHADOWD_MISC_TESTS', SHADOWD_ROOT_DIR . '/misc/tests/');
