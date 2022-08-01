@@ -30,6 +30,6 @@ jobs:
       - name: Run PHPCS
         run: php vendor/bin/phpcs --standard=PSR2 --ignore="autoload.php,Connector.php,libs/*" src
       - name: Run PHPStan
-        run: php vendor/bin/phpstan analyse -c .phpstan.neon -l 6 src
+        run: php vendor/bin/phpstan analyse -l 6 src
       - name: Run PHPUnit
         run: php vendor/bin/phpunit tests
